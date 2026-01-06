@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestión Financiera - Consultora (Firebase Cloud)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#f5f6f8; --card:#fff; --muted:#6b7280; --line:#e5e7eb;
+      --primary:#2c7be5; --danger:#dc3545; --secondary:#6c757d;
+      --ok:#198754; --warn:#f59e0b; --inactive:#9ca3af;
+    }
+    *{ box-sizing:border-box; }
+
+    body { font-family: Arial, sans-serif; background:var(--bg); padding:20px; color:#111827; }
+    h1 { text-align:center; margin:0 0 14px; }
+    h2 { margin:0 0 10px; font-size:16px; }
+    .panel, .card, form, table { background:var(--card); padding:15px; border-radius:10px; margin-bottom: 14px; border:1px solid var(--line); }
+    label { display:block; margin-top:10px; font-weight:700; font-size:13px; }
+    input, select, button, textarea { width:100%; padding:9px; margin-top:6px; border:1px solid var(--line); border-radius:8px; }
+    textarea{ min-height:70px; resize:vertical; }
+    button { background:var(--primary); color:#fff; border:none; cursor:pointer; border-radius:8px; font-weight:700; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-secondary { background:var(--secondary); }
+    .btn-danger { background:var(--danger); }
+    .btn-mini { width:auto; padding:7px 10px; border-radius:8px; font-size:12px; }
+    
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .row3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+    @media (max-width: 900px){ .row3{ grid-template-columns:1fr; } }
+    @media (max-width: 720px){ .row{ grid-template-columns:1fr; } }
+
+    table { width:100%; border-collapse: collapse; }
+    th, td { border:1px solid var(--line); padding:8px; font-size: 13px; text-align:center; vertical-align:top; }
+    th { background:#f3f4f6; }
+
+    .small { font-size: 12.5px; color:var(--muted); line-height:1.35; }
+    .tag { padding: 3px 8px; border-radius: 999px; display:inline-block; font-size: 12px; border:1px solid var(--line); }
+    .t-ok { background:#ecfdf5; color: var(--ok); }
+    .t-warn { background:#fffbeb; color: var(--warn); }
+    .t-inactive { background:#f3f4f6; color: var(--muted); }
+
+    .tabs{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
+    .tab{ background:#ffffff; border:1px solid var(--line); padding:10px 12px; border-radius:999px; cursor:pointer; font-weight:700; font-size:13px; }
+    .tab.active{ background:var(--primary); border-color:var(--primary); color:#fff; }
+    
+    .grid4 { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+    @media (max-width: 1000px){ .grid4{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 600px){ .grid4{ grid-template-columns: 1fr;} }
+    
+    .kpi h3 { margin:0 0 6px; font-size: 13px; color:#374151; font-weight:800; }
+    .kpi .val { font-size: 18px; font-weight:900; }
+    .topbar{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .summary{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; } 
+  </style>
+</head>
+<body>
+
+<h1>Gestión Financiera (Consultora)</h1>
+
+<div class="panel topbar">
+  <div>
+    <div class="small">Sincronizado con <b>Firebase</b>.</div>
+    <div class="small">Usuario: <b id="whoUser">—</b> · Rol: <b id="whoRole">—</b></div>
+  </div>
+  <div style="min-width:220px;">
+    <label>Cambiar sesión (demo)</label>
+    <select id="sessionUser"></select>
+    <div class="small">Admin/Editor guarda. Lectura solo ve.</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="grid4">
+    <div class="kpi card"><h3>Ingresos (Devengado)</h3><div class="val" id="kpiIngDev">S/ 0.00</div></div>
+    <div class="kpi card"><h3>Gastos</h3><div class="val" id="kpiGasDev">S/ 0.00</div></div>
+    <div class="kpi card"><h3>CxC (Pendiente)</h3><div class="val" id="kpiCxc">S/ 0.00</div></div>
+    <div class="kpi card"><h3>Caja (Cobrado)</h3><div class="val" id="kpiCaja">S/ 0.00</div></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="clientes">Clientes</div>
+  <div class="tab" data-tab="proyectos">Proyectos</div>
+  <div class="tab" data-tab="facturas">Facturas</div>
+  <div class="tab" data-tab="pagos">Pagos</div>
+  <div class="tab" data-tab="gastos">Gastos</div>
+</div>
+
+<section id="tab-clientes" class="panel">
+  <h2>Cartera de Clientes</h2>
+  
+  <div class="summary" style="margin-bottom:12px;">
+    <div class="card"><h3>Total Clientes</h3><div class="val" id="kpiCliTotal">0</div></div>
+    <div class="card"><h3>Clientes Activos</h3><div class="val" id="kpiCliActivos" style="color:var(--ok)">0</div></div>
+    <div class="card"><h3>Clientes Inactivos</h3><div class="val" id="kpiCliInactivos" style="color:var(--muted)">0</div></div>
+  </div>
+
+  <form id="formCliente">
+    <div class="row">
+      <div><label>Nombre / Razón Social *</label><input id="cliNombre" required placeholder="Ej. Corporación ABC S.A.C." /></div>
+      <div><label>N° Cliente – Drive</label><input id="cliDrive" placeholder="Ej. 001-2024" /></div>
+    </div>
+    <div class="row">
+      <div><label>Persona de Contacto</label><input id="cliContacto" /></div>
+      <div><label>Cargo</label><input id="cliCargo" /></div>
+    </div>
+    <div class="row">
+      <div><label>Email</label><input id="cliEmail" type="email" /></div>
+      <div><label>Celular</label><input id="cliCelular" /></div>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+        <div><label>Expediente / Kardex</label><input id="cliExpediente" /></div>
+        <div><label>Carta Poder</label><select id="cliCartaPoder"><option>Simple</option><option>Legalizada</option><option>No aplica</option></select></div>
+    </div>
+    <div class="row">
+        <div><label>Canal de Ingreso</label><select id="cliCanal" onchange="toggleOtro('cliCanal', 'cliCanalOtro')"><option>WhatsApp</option><option>Llamada</option><option>Correo</option><option>Presencial</option><option>Otro</option></select><input id="cliCanalOtro" style="display:none; margin-top:5px;" placeholder="Especifique..." /></div>
+        <div><label>Motivo de la consulta</label><select id="cliMotivo" onchange="toggleOtro('cliMotivo', 'cliMotivoOtro')"><option>Sucesión</option><option>Contrato</option><option>Proceso Judicial</option><option>Trámite Administrativo</option><option>Notarial</option><option>Otro</option></select><input id="cliMotivoOtro" style="display:none; margin-top:5px;" placeholder="Especifique..." /></div>
+    </div>
+    <label>Detalle consulta</label><textarea id="cliDetalle"></textarea>
+    <label>Notificación Resolución</label><textarea id="cliResolucion" style="min-height:50px;"></textarea>
+    <label>Notas internas</label><textarea id="cliNotas" style="min-height:50px;"></textarea>
+    <div class="divider"></div>
+    <div class="row3">
+        <div><label>Fecha de Ingreso</label><input id="cliFechaIngreso" type="date" /></div>
+        <div><label>Fecha de Registro</label><input id="cliFechaRegistro" type="date" /></div>
+        <div><label>Estado</label><select id="cliEstado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div>
+    </div>
+    <button type="submit" style="margin-top:15px;">Guardar Cliente</button>
+  </form>
+
+  <div class="panel" style="margin-top:20px; background:#f9fafb; border:1px solid #e5e7eb;">
+      <h3 style="margin:0 0 10px 0;">Búsqueda de Clientes</h3>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+          <div>
+              <label style="margin-top:0; font-weight:normal;">Buscar (Escribe o selecciona):</label>
+              <input list="cliSearchList" id="cliSearchInput" class="w-100" placeholder="🔍 Nombre, DNI, Contacto..." oninput="renderCartera()">
+              <datalist id="cliSearchList"></datalist>
+          </div>
+          <div style="background:#fff; padding:8px; border:1px solid #ddd; border-radius:6px; width:fit-content;">
+              <label style="margin:0; cursor:pointer; font-weight:normal; font-size:13px;"><input type="checkbox" id="chkShowInactivos" onchange="renderCartera()"> Mostrar desactivados</label>
+          </div>
+      </div>
+      <table><thead><tr><th style="width:30%">Cliente / Drive</th><th style="width:20%">Contacto</th><th style="width:35%">Consulta / Detalle</th><th style="width:15%">Acción</th></tr></thead><tbody id="tblClientes"></tbody></table>
+  </div>
+</section>
+
+<section id="tab-proyectos" class="panel" style="display:none;">
+  <h2>Gestión de Proyectos</h2>
+  
+  <div class="summary" style="margin-bottom:12px;">
+    <div class="card"><h3>Total Proyectos</h3><div class="val" id="kpiProyTotal">0</div></div>
+    <div class="card"><h3>Activos</h3><div class="val" id="kpiProyActivos" style="color:var(--ok)">0</div></div>
+    <div class="card"><h3>Cerrados/Inactivos</h3><div class="val" id="kpiProyInactivos" style="color:var(--muted)">0</div></div>
+  </div>
+
+  <form id="formProyecto">
+    <div class="row">
+      <div><label>Cliente Vinculado *</label><select id="proyCliente" required></select></div>
+      <div><label>Nombre del Proyecto *</label><input id="proyNombre" required placeholder="Ej. Implementación Sistema ISO" /></div>
+    </div>
+    
+    <div class="row3">
+      <div><label>Estado</label><select id="proyEstado"><option>Activo</option><option>Cerrado</option><option>Pausado</option></select></div>
+      <div><label>Fecha Inicio</label><input id="proyInicio" type="date"></div>
+      <div><label>Fecha Fin (Estimada)</label><input id="proyFin" type="date"></div>
+    </div>
+
+    <label>Descripción / Alcance</label>
+    <textarea id="proyDesc" placeholder="Detalles del proyecto..."></textarea>
+
+    <button type="submit" style="margin-top:15px;">Guardar Proyecto</button>
+  </form>
+
+  <div class="panel" style="margin-top:20px; background:#f9fafb; border:1px solid #e5e7eb;">
+      <h3 style="margin:0 0 10px 0;">Búsqueda de Proyectos</h3>
+      
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+          <div>
+              <label style="margin-top:0; font-weight:normal;">Buscar (Nombre Proyecto o Cliente):</label>
+              <input list="proySearchList" id="proySearchInput" class="w-100" placeholder="🔍 Escribe para buscar..." oninput="renderProyectos()">
+              <datalist id="proySearchList"></datalist>
+          </div>
+          
+          <div style="background:#fff; padding:8px; border:1px solid #ddd; border-radius:6px; width:fit-content;">
+              <label style="margin:0; cursor:pointer; font-weight:normal; font-size:13px;">
+                  <input type="checkbox" id="chkShowProyInactivos" onchange="renderProyectos()"> 
+                  Mostrar proyectos inactivos/cerrados
+              </label>
+          </div>
+      </div>
+
+      <table>
+        <thead>
+            <tr>
+                <th style="width:30%">Proyecto</th>
+                <th style="width:25%">Cliente</th>
+                <th style="width:15%">Estado</th>
+                <th style="width:15%">Fechas</th>
+                <th style="width:15%">Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tblProyectos"></tbody>
+      </table>
+  </div>
+</section>
+
+<section id="tab-facturas" class="panel" style="display:none;">
+  <h2>Facturas</h2>
+  <form id="formFactura">
+    <div class="row3">
+      <div><label>Cliente *</label><select id="facCliente" required></select></div>
+      <div><label>Proyecto</label><select id="facProyecto"></select></div>
+      <div><label>Tipo Comp.</label><select id="facTipoComp"><option>Factura</option><option>Boleta</option></select></div>
+    </div>
+    <div class="row3">
+      <div><label>Serie</label><input id="facSerie" required placeholder="F001" /></div>
+      <div><label>Número</label><input id="facNumero" required placeholder="000123" /></div>
+      <div><label>Total</label><input id="facTotalInput" type="number" step="0.01" required /></div>
+    </div>
+    <div class="row">
+      <div><label>Emisión</label><input id="facEmision" type="date" required></div>
+    </div>
+    <button type="submit">Guardar Factura</button>
+  </form>
+  <table><thead><tr><th>Factura</th><th>Cliente</th><th>Total</th></tr></thead><tbody id="tblFacturas"></tbody></table>
+</section>
+
+<section id="tab-pagos" class="panel" style="display:none;">
+  <h2>Pagos</h2>
+  <form id="formPago">
+    <div class="row3">
+      <div><label>Cliente *</label><select id="pagCliente" required></select></div>
+      <div><label>Fecha Pago</label><input id="pagFecha" type="date" required></div>
+      <div><label>Medio</label><select id="pagMedio"><option>Transferencia</option><option>Cheque</option><option>Efectivo</option></select></div>
+    </div>
+    <div class="row">
+        <div><label>Monto</label><input id="pagMonto" type="number" step="0.01" required></div>
+        <div><label>Referencia</label><input id="pagRef" placeholder="N° Operación"></div>
+    </div>
+    <button type="submit">Registrar Pago</button>
+  </form>
+  <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Monto</th><th>Ref</th></tr></thead><tbody id="tblPagos"></tbody></table>
+</section>
+
+<section id="tab-gastos" class="panel" style="display:none;">
+  <h2>Gastos</h2>
+  <form id="formGasto">
+    <div class="row3">
+        <div><label>Fecha</label><input id="gasFecha" type="date" required></div>
+        <div><label>Categoría</label><select id="gasCat"><option>Oficina</option><option>Software</option></select></div>
+        <div><label>Total</label><input id="gasTotal" type="number" step="0.01" required></div>
+    </div>
+    <div class="row">
+        <div><label>Proyecto</label><select id="gasProy"></select></div>
+        <div><label>Descripción</label><input id="gasDesc" required></div>
+    </div>
+    <button type="submit">Registrar Gasto</button>
+  </form>
+  <table><thead><tr><th>Fecha</th><th>Cat</th><th>Total</th></tr></thead><tbody id="tblGastos"></tbody></table>
+</section>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // --- 1. CONFIGURACIÓN FIREBASE ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3l8VKlDzLNKDYwAK5sRht40xUC7I7Xno",
+    authDomain: "web-app-61b63.firebaseapp.com",
+    projectId: "web-app-61b63",
+    storageBucket: "web-app-61b63.firebasestorage.app",
+    messagingSenderId: "423783572522",
+    appId: "1:423783572522:web:b626ebe75e35aebcfe8f53",
+    measurementId: "G-FQEWNW3G2Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db_cloud = getFirestore(app);
+
+  // --- 2. VARIABLES GLOBALES ---
+  window.db = {
+      clientes: [], proyectos: [], facturas: [], pagos: [], gastos: [],
+      usuarios: [
+          {id: "u1", nombre: "Admin Demo", rol: "ADMIN"},
+          {id: "u2", nombre: "Editor Demo", rol: "EDITOR"},
+          {id: "u3", nombre: "Lectura Demo", rol: "LECTURA"}
+      ],
+      session: { userId: "u1" }
+  };
+
+  // --- 3. INICIALIZACIÓN UI LOCAL ---
+  function initSessionUI() {
+      const sUser = document.getElementById("sessionUser");
+      if(!sUser) return;
+      sUser.innerHTML = "";
+      window.db.usuarios.forEach(u => {
+          sUser.innerHTML += `<option value="${u.id}">${u.nombre} (${u.rol})</option>`;
+      });
+      sUser.onchange = () => {
+          window.db.session.userId = sUser.value;
+          const u = window.db.usuarios.find(user => user.id === sUser.value);
+          if(u) {
+            document.getElementById("whoUser").textContent = u.nombre;
+            document.getElementById("whoRole").textContent = u.rol;
+          }
+      };
+      sUser.value = "u1"; sUser.onchange();
+  }
+  initSessionUI();
+
+  // --- 4. HELPERS ---
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => "S/ " + Number(n||0).toFixed(2);
+  const parseNum = (n) => Number(n)||0;
+  
+  window.canEdit = () => {
+      const u = window.db.usuarios.find(user => user.id === window.db.session.userId);
+      return u && (u.rol === "ADMIN" || u.rol === "EDITOR");
+  };
+
+  window.toggleOtro = (selectId, inputId) => {
+      const val = document.getElementById(selectId).value;
+      const input = document.getElementById(inputId);
+      input.style.display = (val === "Otro") ? "block" : "none";
+      if (val !== "Otro") input.value = ""; 
+  };
+
+  // --- 5. SINCRONIZACIÓN FIREBASE ---
+  
+  // A. Clientes
+  onSnapshot(query(collection(db_cloud, "clientes"), orderBy("createdAt", "desc")), (snap) => {
+      window.db.clientes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      renderSelects(); 
+      renderClientDatalist(); 
+      renderCartera();
+  });
+
+  // B. Proyectos (Nueva lógica)
+  onSnapshot(collection(db_cloud, "proyectos"), (snap) => {
+      window.db.proyectos = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      renderProjectDatalist();
+      renderProyectos();
+      renderSelects(); // Actualizar select de gastos/facturas
+  });
+
+  // Resto
+  ["facturas", "pagos", "gastos"].forEach(col => {
+      onSnapshot(collection(db_cloud, col), (snap) => {
+          window.db[col] = snap.docs.map(d => ({id: d.id, ...d.data()}));
+          if(col === "facturas") { renderFacturas(); renderKPIs(); }
+          if(col === "pagos") { renderPagos(); renderKPIs(); }
+          if(col === "gastos") { renderGastos(); renderKPIs(); }
+      });
+  });
+
+  // --- 6. FUNCIÓN GUARDADO ---
+  async function guardarEnNube(coleccion, datos) {
+      if(!window.canEdit()){
+          alert("⛔ DENEGADO: Tu rol actual no permite guardar.");
+          return false;
+      }
+      try {
+          datos.createdAt = serverTimestamp();
+          await addDoc(collection(db_cloud, coleccion), datos);
+          return true;
+      } catch(e) {
+          console.error(e);
+          alert("Error: Verifica las Reglas de Firebase.");
+          return false;
+      }
+  }
+
+  // --- 7. ACCIONES ENTIDADES (Toggle Activo) ---
+  window.toggleCliente = async (id, activar) => {
+      if(!window.canEdit()) return alert("Sin permisos");
+      try {
+          const ref = doc(db_cloud, "clientes", id);
+          await updateDoc(ref, { activo: activar, estado: activar ? "Activo" : "Inactivo" });
+      } catch(e) { console.error(e); }
+  };
+
+  window.toggleProyecto = async (id, activar) => {
+      if(!window.canEdit()) return alert("Sin permisos");
+      try {
+          const ref = doc(db_cloud, "proyectos", id);
+          await updateDoc(ref, { activo: activar, estado: activar ? "Activo" : "Cerrado" });
+      } catch(e) { console.error(e); }
+  };
+
+  // --- 8. RENDERIZADO UI ---
+  function renderSelects() {
+      const activos = window.db.clientes.filter(c => c.activo !== false);
+      const fill = (id, data, labelFn) => {
+          const el = $(id); if(!el) return;
+          const current = el.value;
+          el.innerHTML = '<option value="">-- Seleccionar --</option>';
+          data.forEach(item => el.innerHTML += `<option value="${item.id}">${labelFn(item)}</option>`);
+          if(current) el.value = current;
+      };
+      fill("proyCliente", activos, c => c.nombre);
+      fill("facCliente", activos, c => c.nombre);
+      fill("pagCliente", activos, c => c.nombre);
+      const pLabel = p => { const c = window.db.clientes.find(x => x.id === p.clienteId); return `${p.nombre} (${c ? c.nombre : "?"})`; };
+      fill("facProyecto", window.db.proyectos, pLabel);
+      fill("gasProy", window.db.proyectos, pLabel);
+  }
+
+  // --- DATALISTS PARA BUSCADORES ---
+  function renderClientDatalist() {
+      const datalist = $("cliSearchList"); if(!datalist) return;
+      datalist.innerHTML = "";
+      [...window.db.clientes].sort((a,b) => (a.nombre||"").localeCompare(b.nombre||"")).forEach(c => {
+          const option = document.createElement("option");
+          option.value = c.nombre; 
+          option.textContent = `Drive: ${c.drive||"-"} | ${c.estado}`;
+          datalist.appendChild(option);
+      });
+  }
+
+  function renderProjectDatalist() {
+      const datalist = $("proySearchList"); if(!datalist) return;
+      datalist.innerHTML = "";
+      [...window.db.proyectos].sort((a,b) => (a.nombre||"").localeCompare(b.nombre||"")).forEach(p => {
+          const c = window.db.clientes.find(x=>x.id===p.clienteId);
+          const option = document.createElement("option");
+          option.value = p.nombre;
+          option.textContent = `Cliente: ${c?c.nombre:'-'} | ${p.estado}`;
+          datalist.appendChild(option);
+      });
+  }
+
+  // --- RENDER TABLAS ---
+  function renderCartera() {
+      const term = ($("cliSearchInput")?.value || "").toLowerCase();
+      const showInactivos = $("chkShowInactivos")?.checked;
+      
+      const list = window.db.clientes.filter(c => {
+          const textMatch = (c.nombre||"").toLowerCase().includes(term) || (c.drive||"").toLowerCase().includes(term) || (c.contacto||"").toLowerCase().includes(term);
+          const stateMatch = showInactivos ? true : (c.activo !== false);
+          return textMatch && stateMatch;
+      });
+      
+      $("tblClientes").innerHTML = list.map(c => {
+          const inactivo = c.activo === false;
+          return `
+          <tr style="${inactivo ? 'opacity:0.6; background:#f9fafb' : ''}">
+              <td><b>${c.nombre}</b><div class="small">Drive: ${c.drive||"-"}</div></td>
+              <td><div>${c.celular||"-"}</div><div class="small">${c.email||""}</div></td>
+              <td><div class="tag" style="background:#fff; border:1px solid #ddd;">${c.motivo||"-"}</div>
+                  <div class="small">Exp: ${c.expediente||"-"}</div>
+                  <div style="background:#f3f4f6; border:1px solid #e5e7eb; padding:6px; margin-top:5px; font-size:11px; border-radius:4px;"><b>Detalle:</b> ${c.detalle || "Sin detalle."}</div>
+              </td>
+              <td>
+                  ${!inactivo ? `<button class="btn-mini btn-danger" onclick="toggleCliente('${c.id}', false)">Desactivar</button>` : `<button class="btn-mini btn-secondary" onclick="toggleCliente('${c.id}', true)">Activar</button>`}
+                  ${inactivo ? '<div class="small tag t-inactive" style="margin-top:4px">Inactivo</div>' : ''}
+              </td>
+          </tr>`
+      }).join("");
+      
+      const total = window.db.clientes.length;
+      const activos = window.db.clientes.filter(c => c.activo !== false).length;
+      $("kpiCliTotal").textContent = total;
+      $("kpiCliActivos").textContent = activos;
+      $("kpiCliInactivos").textContent = total - activos;
+  }
+
+  function renderProyectos() {
+      const term = ($("proySearchInput")?.value || "").toLowerCase();
+      const showInactivos = $("chkShowProyInactivos")?.checked;
+
+      const list = window.db.proyectos.filter(p => {
+          const c = window.db.clientes.find(x => x.id === p.clienteId);
+          const clientName = c ? c.nombre.toLowerCase() : "";
+          
+          const textMatch = (p.nombre||"").toLowerCase().includes(term) || clientName.includes(term);
+          const stateMatch = showInactivos ? true : (p.activo !== false);
+          return textMatch && stateMatch;
+      });
+
+      $("tblProyectos").innerHTML = list.map(p => {
+          const c = window.db.clientes.find(x => x.id === p.clienteId);
+          const inactivo = p.activo === false;
+          return `
+          <tr style="${inactivo ? 'opacity:0.6; background:#f9fafb' : ''}">
+              <td><b>${p.nombre}</b><div class="small">${p.desc||""}</div></td>
+              <td>${c?c.nombre:"-"}</td>
+              <td><span class="tag ${inactivo?'t-inactive':'t-ok'}">${p.estado}</span></td>
+              <td><div class="small">Ini: ${p.inicio||"-"}</div><div class="small">Fin: ${p.fin||"-"}</div></td>
+              <td>
+                  ${!inactivo ? `<button class="btn-mini btn-danger" onclick="toggleProyecto('${p.id}', false)">Cerrar</button>` : `<button class="btn-mini btn-secondary" onclick="toggleProyecto('${p.id}', true)">Reactivar</button>`}
+              </td>
+          </tr>`;
+      }).join("");
+
+      const total = window.db.proyectos.length;
+      const activos = window.db.proyectos.filter(p => p.activo !== false).length;
+      $("kpiProyTotal").textContent = total;
+      $("kpiProyActivos").textContent = activos;
+      $("kpiProyInactivos").textContent = total - activos;
+  }
+
+  function renderFacturas() { $("tblFacturas").innerHTML = window.db.facturas.map(f => { const c = window.db.clientes.find(x=>x.id===f.clienteId); return `<tr><td>${f.serie}-${f.numero}</td><td>${c?c.nombre:"-"}</td><td>${money(f.total)}</td></tr>`; }).join(""); }
+  function renderPagos() { $("tblPagos").innerHTML = window.db.pagos.map(p => { const c = window.db.clientes.find(x=>x.id===p.clienteId); return `<tr><td>${p.fecha}</td><td>${c?c.nombre:"-"}</td><td>${money(p.monto)}</td><td>${p.referencia||"-"}</td></tr>`; }).join(""); }
+  function renderGastos() { $("tblGastos").innerHTML = window.db.gastos.map(g => `<tr><td>${g.fecha}</td><td>${g.categoria}</td><td>${money(g.total)}</td></tr>`).join(""); }
+  
+  function renderKPIs() {
+      const sum = (arr, k) => arr.reduce((acc, i) => acc + (Number(i[k])||0), 0);
+      $("kpiIngDev").textContent = money(sum(window.db.facturas, "total"));
+      $("kpiGasDev").textContent = money(sum(window.db.gastos, "total"));
+      $("kpiCaja").textContent = money(sum(window.db.pagos, "monto"));
+      const cxc = sum(window.db.facturas, "total") - sum(window.db.pagos, "monto");
+      $("kpiCxc").textContent = money(cxc > 0 ? cxc : 0);
+  }
+
+  // --- 9. SUBMIT ---
+  $("formCliente").onsubmit = async (e) => {
+      e.preventDefault();
+      let canal = $("cliCanal").value; if (canal === "Otro") canal = $("cliCanalOtro").value || "Otro";
+      let motivo = $("cliMotivo").value; if (motivo === "Otro") motivo = $("cliMotivoOtro").value || "Otro";
+      const estado = $("cliEstado").value;
+      
+      const ok = await guardarEnNube("clientes", {
+          nombre: $("cliNombre").value, drive: $("cliDrive").value,
+          fechaIngreso: $("cliFechaIngreso").value, fechaRegistro: $("cliFechaRegistro").value,
+          contacto: $("cliContacto").value, cargo: $("cliCargo").value,
+          email: $("cliEmail").value, celular: $("cliCelular").value,
+          expediente: $("cliExpediente").value, cartaPoder: $("cliCartaPoder").value,
+          canal: canal, motivo: motivo, detalle: $("cliDetalle").value,
+          resolucion: $("cliResolucion").value, notas: $("cliNotas").value,
+          estado: estado, activo: (estado === "Activo")
+      });
+      if(ok) { 
+          e.target.reset(); 
+          $("cliCanalOtro").style.display = "none"; $("cliMotivoOtro").style.display = "none";
+          $("cliFechaIngreso").value = new Date().toISOString().split('T')[0];
+          $("cliFechaRegistro").value = new Date().toISOString().split('T')[0];
+      }
+  };
+
+  $("formProyecto").onsubmit = async (e) => {
+      e.preventDefault();
+      const estado = $("proyEstado").value;
+      const ok = await guardarEnNube("proyectos", { 
+          clienteId: $("proyCliente").value, nombre: $("proyNombre").value, 
+          estado: estado, inicio: $("proyInicio").value, fin: $("proyFin").value,
+          desc: $("proyDesc").value, activo: (estado === "Activo")
+      });
+      if(ok) e.target.reset();
+  };
+
+  $("formFactura").onsubmit = (e) => { e.preventDefault(); guardarEnNube("facturas", { clienteId: $("facCliente").value, proyectoId: $("facProyecto").value, serie: $("facSerie").value, numero: $("facNumero").value, total: parseFloat($("facTotalInput").value), emision: $("facEmision").value }).then(ok => ok && e.target.reset()); };
+  $("formPago").onsubmit = (e) => { e.preventDefault(); guardarEnNube("pagos", { clienteId: $("pagCliente").value, monto: parseFloat($("pagMonto").value), fecha: $("pagFecha").value, medio: $("pagMedio").value, referencia: $("pagRef").value }).then(ok => ok && e.target.reset()); };
+  $("formGasto").onsubmit = (e) => { e.preventDefault(); guardarEnNube("gastos", { fecha: $("gasFecha").value, categoria: $("gasCat").value, proyectoId: $("gasProy").value, total: parseFloat($("gasTotal").value), desc: $("gasDesc").value }).then(ok => ok && e.target.reset()); };
+
+  // --- 10. EXPOSICIÓN ---
+  window.toggleCliente = toggleCliente;
+  window.toggleProyecto = toggleProyecto;
+  window.renderCartera = renderCartera;
+  window.renderProyectos = renderProyectos;
+  window.toggleOtro = toggleOtro;
+
+  // Tabs
+  document.querySelectorAll(".tab").forEach(t => {
+      t.onclick = () => {
+          document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+          t.classList.add("active");
+          document.querySelectorAll("section.panel").forEach(s => s.style.display="none");
+          $(`tab-${t.dataset.tab}`).style.display = "block";
+      };
+  });
+  
+  // Init fechas
+  const today = new Date().toISOString().split('T')[0];
+  ["proyInicio", "facEmision", "pagFecha", "gasFecha", "cliFechaIngreso", "cliFechaRegistro"].forEach(id => { 
+      const el = $(id); if(el) el.value = today; 
+  });
+
+</script>
+</body>
+</html>
