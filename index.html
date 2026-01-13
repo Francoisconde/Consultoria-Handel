@@ -1039,6 +1039,32 @@
     .quick-stat strong {
       color: var(--text);
     }
+
+    /* ===== ICONOS SVG (sin emojis) ===== */
+    .icon {
+        width: 18px;
+        height: 18px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .nav-item-icon svg,
+    .kpi-icon svg,
+    .btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .kpi-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    
   </style>
 </head>
 <body>
@@ -1053,27 +1079,27 @@
     
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('dashboard')">
-        <span class="nav-item-icon">◐</span>
+        <span class="nav-item-icon" data-ico="dashboard"></span>
         Dashboard
       </div>
       <div class="nav-item" onclick="switchTab('facturas')">
-        <span class="nav-item-icon">◧</span>
+        <span class="nav-item-icon" data-ico="invoice"></span>
         Facturación
       </div>
       <div class="nav-item" onclick="switchTab('pagos')">
-        <span class="nav-item-icon">◫</span>
+        <span class="nav-item-icon" data-ico="payments"></span>
         Pagos y Cobros
       </div>
       <div class="nav-item" onclick="switchTab('clientes')">
-        <span class="nav-item-icon">◯</span>
+        <span class="nav-item-icon" data-ico="clients"></span>
         Clientes
       </div>
       <div class="nav-item" onclick="switchTab('agenda')">
-        <span class="nav-item-icon">◷</span>
+        <span class="nav-item-icon" data-ico="calendar"></span>
         Agenda
       </div>
       <div class="nav-item" onclick="switchTab('usuarios')">
-        <span class="nav-item-icon">◈</span>
+        <span class="nav-item-icon" data-ico="users"></span>
         Usuarios
       </div>
     </nav>
@@ -1109,8 +1135,8 @@
           <p class="page-subtitle">Dashboard financiero inteligente actualizado hoy</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-secondary" onclick="window.location.reload()">↻ Actualizar</button>
-          <button class="btn btn-accent" onclick="switchTab('facturas')">+ Nueva Factura</button>
+          <button class="btn btn-secondary" onclick="window.location.reload()"> <span data-ico="refresh"></span> Actualizar</button>
+          <button class="btn btn-accent" onclick="switchTab('facturas')"> <span data-ico="plus"></span> Nueva Factura</button>
         </div>
       </div>
 
@@ -1121,7 +1147,7 @@
             <div>
               <div class="kpi-label">Ventas Devengadas</div>
             </div>
-            <div class="kpi-icon">↗</div>
+            <div class="kpi-icon" data-ico="trendUp"></div>
           </div>
           <div class="kpi-value" id="dashKpiVentas">S/ 0.00</div>
           <div class="kpi-trend up" id="dashTrendVentas">Ingresos totales</div>
@@ -1131,7 +1157,7 @@
             <div>
               <div class="kpi-label">Cobranza Efectiva</div>
             </div>
-            <div class="kpi-icon">◎</div>
+            <div class="kpi-icon" data-ico="wallet"></div>
           </div>
           <div class="kpi-value" id="dashKpiCobranza">S/ 0.00</div>
           <div class="kpi-trend" style="color:var(--success);">Flujo de caja neto</div>
@@ -1141,7 +1167,7 @@
             <div>
               <div class="kpi-label">Saldo Pendiente</div>
             </div>
-            <div class="kpi-icon">◔</div>
+            <div class="kpi-icon" data-ico="clock"></div>
           </div>
           <div class="kpi-value" id="dashKpiPendiente">S/ 0.00</div>
           <div class="kpi-trend" style="color:var(--warning);">Cuentas por cobrar</div>
@@ -1151,7 +1177,7 @@
             <div>
               <div class="kpi-label">Gastos Totales</div>
             </div>
-            <div class="kpi-icon">↘</div>
+            <div class="kpi-icon" data-ico="trendDown"></div>
           </div>
           <div class="kpi-value" id="dashKpiGastos">S/ 0.00</div>
           <div class="kpi-trend" style="color:var(--danger);">Egresos registrados</div>
@@ -1628,9 +1654,104 @@
   let chartIngresos = null;
 
   const $ = (id) => document.getElementById(id);
+  // ===== ICONOS SVG (sin emojis) =====
+  const ICONS = {
+    dashboard: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M3 13h8V3H3v10z"></path>
+        <path d="M13 21h8V11h-8v10z"></path>
+        <path d="M13 3h8v6h-8V3z"></path>
+        <path d="M3 21h8v-6H3v6z"></path>
+        </svg>
+    `,
+    invoice: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M7 3h10l2 2v16l-2-1-2 1-2-1-2 1-2-1-2 1-2-1V5l2-2z"></path>
+        <path d="M8 9h8"></path>
+        <path d="M8 13h8"></path>
+        <path d="M8 17h5"></path>
+        </svg>
+    `,
+    payments: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M3 7h18v10H3V7z"></path>
+        <path d="M7 12h.01"></path>
+        <path d="M17 12h.01"></path>
+        <path d="M9 16h6"></path>
+        </svg>
+    `,
+    clients: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M16 11a4 4 0 1 0-8 0"></path>
+        <path d="M6 21v-1a6 6 0 0 1 12 0v1"></path>
+        <path d="M20 21v-1a5 5 0 0 0-3-4.6"></path>
+        <path d="M4 21v-1a5 5 0 0 1 3-4.6"></path>
+        </svg>
+    `,
+    calendar: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M8 3v3"></path>
+        <path d="M16 3v3"></path>
+        <path d="M4 7h16"></path>
+        <path d="M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path>
+        <path d="M8 11h4"></path>
+        <path d="M8 15h6"></path>
+        </svg>
+    `,
+    users: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"></path>
+        <path d="M4 21v-1a8 8 0 0 1 16 0v1"></path>
+        </svg>
+    `,
+    trendUp: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M3 17l7-7 4 4 7-7"></path>
+        <path d="M14 7h7v7"></path>
+        </svg>
+    `,
+    trendDown: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M3 7l7 7 4-4 7 7"></path>
+        <path d="M14 17h7v-7"></path>
+        </svg>
+    `,
+    wallet: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M3 7h18v14H3V7z"></path>
+        <path d="M3 11h18"></path>
+        <path d="M17 15h.01"></path>
+        </svg>
+    `,
+    clock: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10z"></path>
+        <path d="M12 6v6l4 2"></path>
+        </svg>
+    `,
+    refresh: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M21 12a9 9 0 1 1-3-6.7"></path>
+        <path d="M21 3v6h-6"></path>
+        </svg>
+    `,
+    plus: `
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path d="M12 5v14"></path>
+        <path d="M5 12h14"></path>
+        </svg>
+    `
+    };
+    function paintIcons() {
+        document.querySelectorAll("[data-ico]").forEach(el => {
+            const name = el.getAttribute("data-ico");
+            if (ICONS[name]) el.innerHTML = ICONS[name];
+        });
+    }  
   const money = (n) => "S/ " + Number(n||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const parseNum = (n) => Number(n) || 0;
   function escapeHtml(str) { return String(str ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
+  function safeUrl(url) {  const u = String(url || "").trim();  if (!u) return "";  if (u.startsWith("http://") || u.startsWith("https://")) return u;  return ""; }
   function toDatetimeLocalValue(d = new Date()){ const pad = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
   
   function initFechaRegistro() {
@@ -1638,15 +1759,62 @@
     if(el && !el.value) el.value = toDatetimeLocalValue();
   }
 
+  function localISODate(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  // ===== VALIDACION: AÑO (AAAA) SOLO 4 DIGITOS EN FECHAS =====
+  function enforceYear4Digits(el) {
+    const v = String(el.value || "");
+
+    // date: YYYY-MM-DD
+    if (el.type === "date") {
+      const m = v.match(/^(\d{1,})(-\d{0,2}-\d{0,2})?$/);
+      if (!m) return;
+      const year = m[1].slice(0, 4);
+      const rest = m[2] || "";
+      const fixed = year + rest;
+      if (fixed !== v) el.value = fixed;
+    }
+
+    // datetime-local: YYYY-MM-DDTHH:MM
+    if (el.type === "datetime-local") {
+      const m = v.match(/^(\d{1,})(-\d{0,2}-\d{0,2}T.*)$/);
+      if (!m) return;
+      const year = m[1].slice(0, 4);
+      const rest = m[2] || "";
+      const fixed = year + rest;
+      if (fixed !== v) el.value = fixed;
+    }
+  }
+
+  // Listener global (cubre todos tus inputs date/datetime-local)
+  document.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t && (t.type === "date" || t.type === "datetime-local")) {
+      enforceYear4Digits(t);
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    const t = e.target;
+    if (t && (t.type === "date" || t.type === "datetime-local")) {
+        enforceYear4Digits(t);
+    }
+  });
+  
   function setAllDefaultDates() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localISODate();
     ["agFecha","facEmision","pagFecha","cliFechaIngreso","cliFechaRegistro"].forEach(id => {
       const el = $(id);
-      if(el && !el.value) el.value = today;
+      if (el && !el.value) el.value = today;
     });
     initFechaRegistro();
   }
-
+  
   // Toggle sidebar mobile
   window.toggleSidebar = () => {
     $("sidebar").classList.toggle("open");
@@ -1742,7 +1910,8 @@
   
   window.viewCliente = (id) => {
     const c = window.db.clientes.find(x => x.id === id); if(!c) return;
-    const driveLink = c.link_drive ? `<a href="${escapeHtml(c.link_drive)}" target="_blank">Abrir Carpeta</a>` : "—";
+    const link = safeUrl(c.link_drive);
+    const driveLink = link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">Abrir Carpeta</a>` : "—";
     $("modalTitle").innerText = "Detalle de Cliente";
     $("modalContent").innerHTML = `
       <div class="detail-section"><h3>Información General</h3><div class="detail-row"><div class="detail-label">Nombre:</div><div class="detail-value"><strong>${escapeHtml(c.nombre)}</strong></div></div><div class="detail-row"><div class="detail-label">Drive ID:</div><div class="detail-value">${escapeHtml(c.drive)}</div></div><div class="detail-row"><div class="detail-label">Link Drive:</div><div class="detail-value">${driveLink}</div></div><div class="detail-row"><div class="detail-label">Estado:</div><div class="detail-value"><span class="tag ${c.estado==='Inactivo'?'tag-muted':'tag-success'}">${c.estado||"Activo"}</span></div></div></div>
@@ -1818,12 +1987,22 @@
   window.deletePago = async (id) => { if(window.canEdit() && confirm("¿Eliminar este pago?")) await deleteDoc(doc(db_cloud,"pagos",id)); };
 
   // Firebase listeners
-  const qry = (col) => query(collection(db_cloud, col), orderBy("createdAt", "desc"));
-  onSnapshot(qry("clientes"), (s) => { window.db.clientes = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
-  onSnapshot(collection(db_cloud, "agenda"), (s) => { window.db.agenda = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
-  onSnapshot(collection(db_cloud, "facturas"), (s) => { window.db.facturas = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
-  onSnapshot(qry("pagos"), (s) => { window.db.pagos = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
-  
+  function normalizeDocs(snap) {
+    // Convierte y ordena en JS (evita que Firestore falle si falta createdAt)
+    return snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => {
+        const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+        const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+        return tb - ta;
+      });
+  }
+
+  onSnapshot(collection(db_cloud, "clientes"), (s) => { window.db.clientes = normalizeDocs(s); refreshAll(); });
+  onSnapshot(collection(db_cloud, "agenda"),   (s) => { window.db.agenda   = normalizeDocs(s); refreshAll(); });
+  onSnapshot(collection(db_cloud, "facturas"), (s) => { window.db.facturas = normalizeDocs(s); refreshAll(); });
+  onSnapshot(collection(db_cloud, "pagos"),    (s) => { window.db.pagos    = normalizeDocs(s); refreshAll(); });
+
   function refreshAll() { 
     renderSelects(); 
     renderCartera(); 
@@ -1833,6 +2012,7 @@
     renderUsers(); 
     initFechaRegistro(); 
     renderDashboard();
+    paintIcons();
   }
 
   // =====================
@@ -1848,7 +2028,13 @@
       const f = window.db.facturas.find(x => x.id === p.facturaId);
       return !f || f.tipoRegistro !== 'gasto';
     }).reduce((s,p) => s + (Number(p.monto)||0), 0);
-    const saldoPendiente = totalIngresos - totalCobrado;
+    const saldoPendiente = ingresos.reduce((acc, f) => {
+      const pagado = window.db.pagos
+        .filter(p => p.facturaId === f.id)
+        .reduce((s,p) => s + (Number(p.monto)||0), 0);
+      const saldo = (Number(f.total)||0) - pagado;
+      return acc + (saldo > 0 ? saldo : 0);
+    }, 0);
 
     // KPIs
     $("dashKpiVentas").textContent = money(totalIngresos);
@@ -2168,9 +2354,19 @@
   // OTHER RENDERS
   // =====================
   window.renderSelects = function() {
-    const fill = (id, data, fnVal, fnTxt) => { const el = $(id); if(!el) return; const curr = el.value; el.innerHTML = '<option value="">— Seleccionar —</option>'; data.forEach(x => el.innerHTML += `<option value="${fnVal(x)}">${fnTxt(x)}</option>`); el.value = curr; };
-    fill("facCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre); 
-    fill("facProveedor", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre); 
+    const fill = (id, data, fnVal, fnTxt) => {
+      const el = $(id);
+      if(!el) return;
+      const curr = el.value;
+
+      el.innerHTML = '<option value="">— Seleccionar —</option>';
+      data.forEach(x => el.innerHTML += `<option value="${fnVal(x)}">${escapeHtml(fnTxt(x))}</option>`);
+
+      // Solo restaura si existe la opción
+      if ([...el.options].some(o => o.value === curr)) el.value = curr;
+    };
+    fill("facCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
+    fill("facProveedor", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
     fill("pagCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
     
     const cliDL = $("cliSearchList"); if (cliDL) { cliDL.innerHTML = ""; window.db.clientes.forEach(c => cliDL.innerHTML += `<option value="${escapeHtml(c.nombre)}">`); }
@@ -2182,7 +2378,7 @@
     const el = $("pagFactura");
     el.innerHTML = '<option value="">— Anticipo —</option>';
     if(cliId) {
-      const facs = window.db.facturas.filter(f => f.clienteId === cliId);
+      const facs = window.db.facturas.filter(f =>  f.clienteId === cliId || f.proveedorId === cliId);
       facs.forEach(f => {
         const pagos = window.db.pagos.filter(p => p.facturaId === f.id).reduce((s,p)=>s+Number(p.monto),0);
         const saldo = f.total - pagos;
@@ -2396,21 +2592,23 @@
     const proveedorSelect = $("facProveedor");
     const proveedorNombre = proveedorSelect?.selectedOptions?.[0]?.textContent?.trim() || "";
     
-    const d = { 
-      tipoRegistro,
-      clienteId: tipoRegistro === 'ingreso' ? $("facCliente").value : $("facProveedor").value,
-      proveedor: tipoRegistro === 'gasto' ? proveedorNombre : null,
-      categoriaGasto: tipoRegistro === 'gasto' ? $("facCategoriaGasto").value : null,
-      proyectoId: $("facProyecto").value, 
-      tipo: $("facTipoComp").value, 
-      numero: $("facNumero").value, 
-      uuid: $("facUUID").value, 
-      moneda: $("facMoneda").value, 
-      emision: $("facEmision").value, 
-      vencimiento: $("facVenc").value, 
-      fecha_registro: $("facFechaRegistro").value, 
-      total: t, 
-      lineas: window.facLineas 
+    const d = {
+        tipoRegistro,
+        clienteId: tipoRegistro === 'ingreso' ? $("facCliente").value : null,
+        proveedorId: tipoRegistro === 'gasto' ? $("facProveedor").value : null,
+        proveedor: tipoRegistro === 'gasto' ? (proveedorNombre || "") : "",
+        categoriaGasto: tipoRegistro === 'gasto' ? $("facCategoriaGasto").value : null,
+
+        proyectoId: $("facProyecto").value,
+        tipo: $("facTipoComp").value,
+        numero: $("facNumero").value,
+        uuid: $("facUUID").value,
+        moneda: $("facMoneda").value,
+        emision: $("facEmision").value,
+        vencimiento: $("facVenc").value,
+        fecha_registro: $("facFechaRegistro").value,
+        total: t,
+        lineas: window.facLineas
     };
     
     const ref = await guardar("facturas", d);
