@@ -132,6 +132,12 @@
       margin-top: auto;
     }
 
+    .sidebar-user-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
     .sidebar-user-info {
       display: flex;
       align-items: center;
@@ -1040,68 +1046,269 @@
       color: var(--text);
     }
 
-    /* ===== ICONOS SVG (sin emojis) ===== */
-    .icon {
-        width: 18px;
-        height: 18px;
-        display: inline-block;
-        vertical-align: middle;
+    .login-box {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
     }
 
-    .nav-item-icon svg,
-    .kpi-icon svg,
-    .btn svg {
-        width: 18px;
-        height: 18px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
+    .login-box input { background: var(--card); }
+
+    .user-permissions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
     }
 
-    .kpi-icon svg {
-        width: 18px;
-        height: 18px;
+    .user-permissions label {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    
+
+    .edit-disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      padding: 24px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .auth-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .auth-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .auth-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ========== ICONOS SVG ========== */
+    .nav-item-icon svg{
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      display: block;
+    }
+
+    .nav-item-text{
+      display: inline-block;
+    }
+
+    /* ========== LOGO (con fallback) ========== */
+    .sidebar-logo{
+      position: relative;
+    }
+
+    .sidebar-logo-icon{
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar-logo-icon img{
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .logo-fallback{
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* Si no carga la imagen, muestra la "H" */
+    .sidebar-logo-icon img:not([src]),
+    .sidebar-logo-icon img[src=""]{
+      display:none;
+    }
+    .sidebar-logo-icon img:not([src]) + .logo-fallback,
+    .sidebar-logo-icon img[src=""] + .logo-fallback{
+      display:flex;
+    }
+
+    /* Botón cerrar solo visible en móvil */
+    .sidebar-close-btn{
+      display:none;
+      position:absolute;
+      right: 8px;
+      top: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 0;
+    }
+    .sidebar-close-btn:hover{
+      background: var(--bg-dark);
+      color: var(--text);
+    }
+
+    /* ========== TRANSICIÓN ENTRE MÓDULOS ========== */
+    .panel{
+      display: block;              /* importante: dejamos de usar display:none */
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+      transition: opacity .20s ease, transform .20s ease;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .panel.active{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      height: auto;
+      overflow: visible;
+    }
+
+    /* ========== MÓVIL: sidebar overlay + header fijo ========== */
+    .sidebar-overlay{
+      display:none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 90;
+    }
+
+    .sidebar.open ~ .sidebar-overlay{
+      display:block;
+    }
+
+    /* Ajustes de sidebar en móvil */
+    @media (max-width: 900px){
+      .sidebar{
+        width: 280px;
+        z-index: 100;
+      }
+      .sidebar-close-btn{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
+      .mobile-header{
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding-top: 8px;
+        z-index: 50;
+      }
+    }
+
   </style>
 </head>
 <body>
 
-<div class="app-layout">
+<section id="loginScreen" class="auth-screen">
+  <div class="auth-card">
+    <div>
+      <div class="auth-title">Ingreso al sistema</div>
+      <div class="auth-subtitle">Ingresa con tu correo y contraseña registrada.</div>
+    </div>
+    <div>
+      <label for="loginEmailInput">Correo electrónico</label>
+      <input id="loginEmailInput" type="email" placeholder="correo@empresa.com" />
+    </div>
+    <div>
+      <label for="loginPassInput">Contraseña</label>
+      <input id="loginPassInput" type="password" placeholder="********" />
+    </div>
+    <div class="auth-actions">
+      <button class="btn btn-primary" type="button" onclick="loginWithEmailPass()">Ingresar</button>
+    </div>
+  </div>
+</section>
+
+<div class="app-layout" id="appLayout" style="display:none;">
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">H</div>
+      <div class="sidebar-logo-icon">
+        <img src="./assets/logo-handel.png" alt="Handel Consultores" />
+        <span class="logo-fallback">H</span>
+      </div>
       <div class="sidebar-logo-text">Handel Consultores</div>
+
+      <!-- Botón cerrar (solo móvil) -->
+      <button class="sidebar-close-btn" type="button" onclick="toggleSidebar(false)" aria-label="Cerrar menú">×</button>
     </div>
-    
+
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="switchTab('dashboard')">
-        <span class="nav-item-icon" data-ico="dashboard"></span>
-        Dashboard
-      </div>
-      <div class="nav-item" onclick="switchTab('facturas')">
-        <span class="nav-item-icon" data-ico="invoice"></span>
-        Facturación
-      </div>
-      <div class="nav-item" onclick="switchTab('pagos')">
-        <span class="nav-item-icon" data-ico="payments"></span>
-        Pagos y Cobros
-      </div>
-      <div class="nav-item" onclick="switchTab('clientes')">
-        <span class="nav-item-icon" data-ico="clients"></span>
-        Clientes
-      </div>
-      <div class="nav-item" onclick="switchTab('agenda')">
-        <span class="nav-item-icon" data-ico="calendar"></span>
-        Agenda
-      </div>
-      <div class="nav-item" onclick="switchTab('usuarios')">
-        <span class="nav-item-icon" data-ico="users"></span>
-        Usuarios
-      </div>
+      <div class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+       <span class="nav-item-icon" aria-hidden="true">
+         <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+       </span>
+       <span class="nav-item-text">Dashboard</span>
+      </div>      
+       <div class="nav-item" data-tab="facturas" onclick="switchTab('facturas')">
+         <span class="nav-item-icon" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6V2zm8 1.5V6h2.5L14 3.5zM8 9h8v2H8V9zm0 4h8v2H8v-2zm0 4h6v2H8v-2z"/></svg>
+         </span>
+         <span class="nav-item-text">Facturación</span>
+       </div>
+       <div class="nav-item" data-tab="pagos" onclick="switchTab('pagos')">
+         <span class="nav-item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 1C6.48 1 2 3.69 2 7v10c0 3.31 4.48 6 10 6s10-2.69 10-6V7c0-3.31-4.48-6-10-6zm0 2c4.42 0 8 1.79 8 4s-3.58 4-8 4-8-1.79-8-4 3.58-4 8-4zm0 18c-4.42 0-8-1.79-8-4V10c1.88 1.5 5.04 2.5 8 2.5s6.12-1 8-2.5v7c0 2.21-3.58 4-8 4z"/></svg>
+         </span>
+         <span class="nav-item-text">Pagos y Cobros</span>
+       </div>
+       <div class="nav-item" data-tab="clientes" onclick="switchTab('clientes')">
+         <span class="nav-item-icon" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+         </span>
+         <span class="nav-item-text">Clientes</span>
+       </div>
+       <div class="nav-item" data-tab="agenda" onclick="switchTab('agenda')">
+         <span class="nav-item-icon" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm13 6H6v12h14V8zM8 10h4v4H8v-4z"/></svg>
+         </span>
+         <span class="nav-item-text">Agenda</span>
+       </div>
+       <div class="nav-item" data-tab="usuarios" onclick="switchTab('usuarios')">
+         <span class="nav-item-icon" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/></svg>
+         </span>
+         <span class="nav-item-text">Usuarios</span>
+       </div>
     </nav>
 
     <div class="sidebar-user">
@@ -1112,9 +1319,13 @@
           <div class="sidebar-user-role" id="userRoleSidebar">ADMIN</div>
         </div>
       </div>
-      <select id="sessionUser" style="margin-top:12px; font-size:12px;"></select>
+      <div class="sidebar-user-actions">
+        <button class="btn btn-secondary btn-sm" type="button" onclick="logoutUser()">Cerrar sesión</button>
+      </div>
     </div>
   </aside>
+
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
   <!-- Main Content -->
   <main class="main-content">
@@ -1135,8 +1346,8 @@
           <p class="page-subtitle">Dashboard financiero inteligente actualizado hoy</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-secondary" onclick="window.location.reload()"> <span data-ico="refresh"></span> Actualizar</button>
-          <button class="btn btn-accent" onclick="switchTab('facturas')"> <span data-ico="plus"></span> Nueva Factura</button>
+          <button class="btn btn-secondary" onclick="window.location.reload()">↻ Actualizar</button>
+          <button class="btn btn-accent edit-only" onclick="switchTab('facturas')">+ Nueva Factura</button>
         </div>
       </div>
 
@@ -1145,42 +1356,42 @@
         <div class="kpi-card ventas">
           <div class="kpi-header">
             <div>
-              <div class="kpi-label">Ventas Devengadas</div>
+              <div class="kpi-label">Ingresos Totales</div>
             </div>
-            <div class="kpi-icon" data-ico="trendUp"></div>
+            <div class="kpi-icon">↗</div>
           </div>
           <div class="kpi-value" id="dashKpiVentas">S/ 0.00</div>
-          <div class="kpi-trend up" id="dashTrendVentas">Ingresos totales</div>
-        </div>
-        <div class="kpi-card cobranza">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-label">Cobranza Efectiva</div>
-            </div>
-            <div class="kpi-icon" data-ico="wallet"></div>
-          </div>
-          <div class="kpi-value" id="dashKpiCobranza">S/ 0.00</div>
-          <div class="kpi-trend" style="color:var(--success);">Flujo de caja neto</div>
-        </div>
-        <div class="kpi-card pendiente">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-label">Saldo Pendiente</div>
-            </div>
-            <div class="kpi-icon" data-ico="clock"></div>
-          </div>
-          <div class="kpi-value" id="dashKpiPendiente">S/ 0.00</div>
-          <div class="kpi-trend" style="color:var(--warning);">Cuentas por cobrar</div>
+          <div class="kpi-trend up" id="dashTrendVentas">Ingresos registrados</div>
         </div>
         <div class="kpi-card gastos">
           <div class="kpi-header">
             <div>
-              <div class="kpi-label">Gastos Totales</div>
+              <div class="kpi-label">Egresos Totales</div>
             </div>
-            <div class="kpi-icon" data-ico="trendDown"></div>
+            <div class="kpi-icon">↘</div>
           </div>
           <div class="kpi-value" id="dashKpiGastos">S/ 0.00</div>
           <div class="kpi-trend" style="color:var(--danger);">Egresos registrados</div>
+        </div>
+        <div class="kpi-card pendiente">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-label">Cuentas por Cobrar</div>
+            </div>
+            <div class="kpi-icon">◔</div>
+          </div>
+          <div class="kpi-value" id="dashKpiPendiente">S/ 0.00</div>
+          <div class="kpi-trend" style="color:var(--warning);">Pendientes de cobro</div>
+        </div>
+        <div class="kpi-card cobranza">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-label">Cuentas por Pagar</div>
+            </div>
+            <div class="kpi-icon">◎</div>
+          </div>
+          <div class="kpi-value" id="dashKpiCobranza">S/ 0.00</div>
+          <div class="kpi-trend" style="color:var(--success);">Pendientes de pago</div>
         </div>
       </div>
 
@@ -1333,6 +1544,10 @@
             <div><label>Email</label><input id="cliEmail" type="email" placeholder="contacto@empresa.com" /></div>
             <div><label>Celular</label><input id="cliCelular" placeholder="+51 999 000 000" /></div>
           </div>
+          <div class="row">
+            <div><label>Dirección</label><input id="cliDireccion" placeholder="Dirección" /></div>
+            <div><label>Ciudad</label><input id="cliCiudad" placeholder="Ciudad" /></div>
+          </div>
           <div class="divider"></div>
           <div class="row">
             <div><label>Expediente / Kardex</label><input id="cliExpediente" placeholder="N° Expediente" /></div>
@@ -1364,8 +1579,8 @@
             <div><label>Estado</label><select id="cliEstado"><option value="Activo" selected>Activo</option><option value="Inactivo">Inactivo</option></select></div>
           </div>
           <div class="inline" style="margin-top:20px;">
-            <button type="submit" class="btn btn-primary">Guardar Cliente</button>
-            <button type="button" id="brnCancelEdit" class="btn btn-secondary" style="display:none;" onclick="window.cancelEditCliente()">Cancelar</button>
+            <button type="submit" class="btn btn-primary edit-only">Guardar Cliente</button>
+            <button type="button" id="brnCancelEdit" class="btn btn-secondary edit-only" style="display:none;" onclick="window.cancelEditCliente()">Cancelar</button>
           </div>
         </form>
 
@@ -1410,8 +1625,8 @@
           </div>
           <div><label>Descripción</label><textarea id="agDesc" placeholder="Detalles adicionales..."></textarea></div>
           <div class="inline" style="margin-top:20px;">
-            <button type="submit" class="btn btn-primary">Guardar Actividad</button>
-            <button type="button" id="btnCancelAgenda" class="btn btn-secondary" style="display:none;" onclick="window.cancelEditAgenda()">Cancelar</button>
+            <button type="submit" class="btn btn-primary edit-only">Guardar Actividad</button>
+            <button type="button" id="btnCancelAgenda" class="btn btn-secondary edit-only" style="display:none;" onclick="window.cancelEditAgenda()">Cancelar</button>
           </div>
         </form>
 
@@ -1448,8 +1663,8 @@
 
       <div class="card">
         <div class="type-toggle">
-          <button type="button" class="type-toggle-btn active-ingreso" id="btnTipoIngreso" onclick="setTipoComprobante('ingreso')">↑ Ingreso</button>
-          <button type="button" class="type-toggle-btn" id="btnTipoGasto" onclick="setTipoComprobante('gasto')">↓ Gasto</button>
+          <button type="button" class="type-toggle-btn active-ingreso edit-only" id="btnTipoIngreso" onclick="setTipoComprobante('ingreso')">↑ Ingreso</button>
+          <button type="button" class="type-toggle-btn edit-only" id="btnTipoGasto" onclick="setTipoComprobante('gasto')">↓ Gasto</button>
         </div>
         
         <form id="formFactura">
@@ -1470,9 +1685,13 @@
 
           <div class="row3">
             <div><label>Fecha Vencimiento</label><input id="facVenc" type="date"></div>
-            <div><label>UUID</label><input id="facUUID" placeholder="Código único opcional"></div>
+            <div><label>N° Guía de Remisión</label><input id="facGuiaRemision" placeholder="N° de guía"></div>
             <div id="divFacCategoriaGasto" style="display:none;"><label>Categoría</label><select id="facCategoriaGasto"><option value="Oficina">Oficina</option><option value="Viáticos">Viáticos</option><option value="Subcontratos">Subcontratos</option><option value="Software">Software</option><option value="Personal">Personal</option><option value="Servicios">Servicios</option><option value="Marketing">Marketing</option><option value="Otros">Otros</option></select></div>
           </div>
+          <div class="row3">
+            <div><label>Orden de Compra</label><input id="facOrdenCompra" placeholder="OC-0001"></div>
+          </div>
+          <label>Observaciones</label><textarea id="facObservaciones" placeholder="Observaciones..."></textarea>
           
           <div class="row3">
             <div><label>Fecha de registro</label><input id="facFechaRegistro" type="datetime-local" readonly style="background:#f1f5f9;"></div>
@@ -1481,36 +1700,57 @@
           <div class="divider"></div>
 
           <div class="row3" style="align-items:end;">
+            <div><label>Código</label><input id="lineCodigo" placeholder="Código"></div>
             <div style="flex:2;"><label>Descripción</label><input id="lineDesc" placeholder="Descripción del servicio o producto"></div>
-            <div><label>Cantidad</label><input id="lineQty" type="number" value="1" min="1"></div>
-            <div><label>Precio Unitario</label><input id="linePU" type="number" step="0.01" placeholder="0.00"></div>
+            <div><label>Tipo de Unidad</label><input id="lineUnidad" placeholder="Unidad"></div>
+          </div>
+
+          <div class="row3" style="align-items:end; margin-top:12px;">
+            <div><label>Cantidad</label><input id="lineQty" type="number" value="1" min="1" oninput="updateValorVenta()"></div>
+            <div><label>Valor Unitario</label><input id="linePU" type="number" step="0.01" placeholder="0.00" oninput="updateValorVenta()"></div>
+            <div><label>Descuento</label><input id="lineDescuento" type="number" step="0.01" placeholder="0.00" oninput="updateValorVenta()"></div>
           </div>
 
           <div class="row" style="align-items:end; margin-top:12px;">
             <div>
-              <label id="lblTipoCobro">Tipo de Cobro</label>
+              <label id="lblTipoCobro">Forma de Pago</label>
               <select id="lineTipoCobro"><option value="Contado">Al contado</option><option value="Crédito">Al crédito</option></select>
             </div>
+            <div>
+              <label>Valor de Venta</label>
+              <input id="lineValorVenta" type="number" step="0.01" placeholder="0.00" readonly style="background:#f1f5f9;">
+            </div>
             <div class="inline" style="justify-content:flex-end;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="addLinea()">+ Agregar</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="facLineas=[]; renderLineas()">Limpiar</button>
+              <button type="button" class="btn btn-primary btn-sm edit-only" onclick="addLinea()">+ Agregar</button>
+              <button type="button" class="btn btn-secondary btn-sm edit-only" onclick="facLineas=[]; renderLineas()">Limpiar</button>
             </div>
           </div>
 
           <div class="table-container" style="margin-top:16px;">
             <table>
-              <thead><tr><th>Descripción</th><th class="text-center" style="width:70px;">Cant.</th><th class="text-right" style="width:100px;">P. Unit.</th><th class="text-center" style="width:80px;">Tipo</th><th class="text-right" style="width:100px;">Total</th><th class="text-center" style="width:50px;"></th></tr></thead>
+              <thead><tr><th>Código</th><th>Descripción</th><th class="text-center" style="width:70px;">Cant.</th><th>Unidad</th><th class="text-right" style="width:110px;">V. Unit.</th><th class="text-right" style="width:110px;">Descuento</th><th class="text-right" style="width:110px;">Valor Venta</th><th class="text-center" style="width:110px;">Forma</th><th class="text-right" style="width:100px;">Total</th><th class="text-center" style="width:50px;"></th></tr></thead>
               <tbody id="tblLineas"></tbody>
             </table>
           </div>
 
           <div class="totals-area">
             <div class="totals-box">
-              <div class="total-row total-final"><span>TOTAL:</span> <span id="lblTotal">S/ 0.00</span></div>
+              <div class="total-row"><span>OP. Gravadas:</span><input id="totOpGravadas" type="number" step="0.01" readonly style="background:#f1f5f9;"></div>
+              <div class="total-row"><span>OP. Inafectas:</span><input id="totOpInafectas" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>OP. Exoneradas:</span><input id="totOpExoneradas" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>OP. Exportación:</span><input id="totOpExportacion" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>Total OP. Gratuitas:</span><input id="totOpGratuitas" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>Dsctos. Totales:</span><input id="totDescuentos" type="number" step="0.01" readonly style="background:#f1f5f9;"></div>
+              <div class="total-row"><span>Sub Total:</span><input id="totSubTotal" type="number" step="0.01" readonly style="background:#f1f5f9;"></div>
+              <div class="total-row"><span>ICBPER:</span><input id="totIcbper" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>ISC:</span><input id="totIsc" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row"><span>IGV:</span><input id="totIgv" type="number" step="0.01" readonly style="background:#f1f5f9;"></div>
+              <div class="total-row"><span>Otros Cargos:</span><input id="totOtrosCargos" type="number" step="0.01" oninput="updateTotals()"></div>
+              <div class="total-row total-final"><span>Total:</span><span id="lblTotal">S/ 0.00</span></div>
             </div>
           </div>
 
-          <button type="submit" class="btn btn-success" id="btnEmitirFactura" style="margin-top:20px; width:100%;">Emitir Ingreso</button>
+          <button type="submit" class="btn btn-success edit-only" id="btnEmitirFactura" style="margin-top:20px; width:100%;">Emitir Ingreso</button>
         </form>
 
         <div style="margin-top:32px;">
@@ -1577,12 +1817,12 @@
             <div><label>Método</label><select id="pagMetodo"><option>Transferencia</option><option>Cheque</option><option>Efectivo</option><option>Yape/Plin</option><option>Tarjeta</option></select></div>
           </div>
           <label>Referencia / Nota</label><input id="pagReferencia" placeholder="N° de operación, detalle, etc.">
-          <button type="submit" class="btn btn-success" id="btnRegistrarPago" style="margin-top:20px;">Registrar Ingreso</button>
+          <button type="submit" class="btn btn-success edit-only" id="btnRegistrarPago" style="margin-top:20px;">Registrar Ingreso</button>
         </form>
         
         <div class="table-container" style="margin-top:24px;">
           <table>
-            <thead><tr><th>Fecha</th><th>Cliente</th><th>Factura</th><th class="text-center">Tipo</th><th class="text-right" style="width:120px;">Monto</th><th>Método</th><th class="text-center" style="width:80px;">Acción</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Cliente</th><th>Factura</th><th class="text-center">Tipo</th><th class="text-right" style="width:120px;">Monto</th><th>Método</th><th class="text-center" style="width:120px;">Acción</th></tr></thead>
             <tbody id="tblPagos"></tbody>
           </table>
         </div>
@@ -1599,8 +1839,23 @@
       </div>
 
       <div class="card">
+        <form id="formUsuario" style="margin-bottom:24px;">
+          <div class="notice">Solo los administradores pueden crear usuarios nuevos.</div>
+          <div class="row">
+            <div><label>Nombre *</label><input id="usrNombre" required placeholder="Nombre completo"></div>
+            <div><label>Rol *</label><select id="usrRol" required><option value="ADMIN">ADMIN</option><option value="EDITOR">EDITOR</option><option value="INVITADO">INVITADO</option></select></div>
+          </div>
+          <div class="row">
+            <div><label>Correo electrónico *</label><input id="usrEmail" type="email" required placeholder="correo@empresa.com"></div>
+            <div><label>Contraseña *</label><input id="usrContrasena" type="password" required placeholder="********"></div>
+          </div>
+          <div class="inline" style="margin-top:16px;">
+            <button type="submit" class="btn btn-primary edit-only">Crear Usuario</button>
+          </div>
+        </form>
+
         <div class="table-container">
-          <table><thead><tr><th>Nombre</th><th>Rol</th><th>Permisos</th></tr></thead><tbody id="tblUsuarios"></tbody></table>
+          <table><thead><tr><th>Nombre</th><th>Rol</th><th>Permisos</th><th class="text-center" style="width:120px;">Acciones</th></tr></thead><tbody id="tblUsuarios"></tbody></table>
         </div>
       </div>
     </section>
@@ -1625,8 +1880,8 @@
     <div class="row">
       <div><input id="facFotoInput" type="file" accept="image/*" /></div>
       <div class="inline" style="justify-content:flex-end;">
-        <button class="btn btn-primary btn-sm" onclick="saveFacturaFoto()">Guardar</button>
-        <button class="btn btn-secondary btn-sm" onclick="clearFacturaFoto()">Quitar</button>
+        <button class="btn btn-primary btn-sm edit-only" onclick="saveFacturaFoto()">Guardar</button>
+        <button class="btn btn-secondary btn-sm edit-only" onclick="clearFacturaFoto()">Quitar</button>
       </div>
     </div>
     <div style="margin-top:12px;">
@@ -1639,13 +1894,23 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = { apiKey: "AIzaSyD3l8VKlDzLNKDYwAK5sRht40xUC7I7Xno", authDomain: "web-app-61b63.firebaseapp.com", projectId: "web-app-61b63", storageBucket: "web-app-61b63.firebasestorage.app", messagingSenderId: "423783572522", appId: "1:423783572522:web:b626ebe75e35aebcfe8f53", measurementId: "G-FQEWNW3G2Z" };
   const app = initializeApp(firebaseConfig);
   const db_cloud = getFirestore(app);
+  const auth = getAuth(app);
+  const adminApp = initializeApp(firebaseConfig, "adminApp");
+  const adminAuth = getAuth(adminApp);
 
-  window.db = { clientes: [], agenda: [], facturas: [], pagos: [], usuarios: [ {id: "u1", nombre: "Admin Demo", rol: "ADMIN"}, {id: "u2", nombre: "Editor Demo", rol: "EDITOR"}, {id: "u3", nombre: "Lectura Demo", rol: "LECTURA"} ], session: { userId: "u1" } };
+  const ROLE_DEFAULTS = {
+    ADMIN: { tabs: { dashboard: true, facturas: true, pagos: true, clientes: true, agenda: true, usuarios: true } },
+    EDITOR: { tabs: { dashboard: true, clientes: true, agenda: true } },
+    INVITADO: { tabs: { dashboard: true } }
+  };
+
+  window.db = { clientes: [], agenda: [], facturas: [], pagos: [], usuarios: [], session: { userId: null } };
   window.facLineas = []; window.editClienteId = null; window.editAgendaId = null;
 
   // Chart instances
@@ -1654,186 +1919,157 @@
   let chartIngresos = null;
 
   const $ = (id) => document.getElementById(id);
-  // ===== ICONOS SVG (sin emojis) =====
-  const ICONS = {
-    dashboard: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M3 13h8V3H3v10z"></path>
-        <path d="M13 21h8V11h-8v10z"></path>
-        <path d="M13 3h8v6h-8V3z"></path>
-        <path d="M3 21h8v-6H3v6z"></path>
-        </svg>
-    `,
-    invoice: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M7 3h10l2 2v16l-2-1-2 1-2-1-2 1-2-1-2 1-2-1V5l2-2z"></path>
-        <path d="M8 9h8"></path>
-        <path d="M8 13h8"></path>
-        <path d="M8 17h5"></path>
-        </svg>
-    `,
-    payments: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M3 7h18v10H3V7z"></path>
-        <path d="M7 12h.01"></path>
-        <path d="M17 12h.01"></path>
-        <path d="M9 16h6"></path>
-        </svg>
-    `,
-    clients: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M16 11a4 4 0 1 0-8 0"></path>
-        <path d="M6 21v-1a6 6 0 0 1 12 0v1"></path>
-        <path d="M20 21v-1a5 5 0 0 0-3-4.6"></path>
-        <path d="M4 21v-1a5 5 0 0 1 3-4.6"></path>
-        </svg>
-    `,
-    calendar: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M8 3v3"></path>
-        <path d="M16 3v3"></path>
-        <path d="M4 7h16"></path>
-        <path d="M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path>
-        <path d="M8 11h4"></path>
-        <path d="M8 15h6"></path>
-        </svg>
-    `,
-    users: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"></path>
-        <path d="M4 21v-1a8 8 0 0 1 16 0v1"></path>
-        </svg>
-    `,
-    trendUp: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M3 17l7-7 4 4 7-7"></path>
-        <path d="M14 7h7v7"></path>
-        </svg>
-    `,
-    trendDown: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M3 7l7 7 4-4 7 7"></path>
-        <path d="M14 17h7v-7"></path>
-        </svg>
-    `,
-    wallet: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M3 7h18v14H3V7z"></path>
-        <path d="M3 11h18"></path>
-        <path d="M17 15h.01"></path>
-        </svg>
-    `,
-    clock: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10z"></path>
-        <path d="M12 6v6l4 2"></path>
-        </svg>
-    `,
-    refresh: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-        <path d="M21 3v6h-6"></path>
-        </svg>
-    `,
-    plus: `
-        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-        <path d="M12 5v14"></path>
-        <path d="M5 12h14"></path>
-        </svg>
-    `
-    };
-    function paintIcons() {
-        document.querySelectorAll("[data-ico]").forEach(el => {
-            const name = el.getAttribute("data-ico");
-            if (ICONS[name]) el.innerHTML = ICONS[name];
-        });
-    }  
   const money = (n) => "S/ " + Number(n||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const parseNum = (n) => Number(n) || 0;
   function escapeHtml(str) { return String(str ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
-  function safeUrl(url) {  const u = String(url || "").trim();  if (!u) return "";  if (u.startsWith("http://") || u.startsWith("https://")) return u;  return ""; }
   function toDatetimeLocalValue(d = new Date()){ const pad = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
+  function getCurrentUser() {
+    return window.db.usuarios.find(u => u.id === window.db.session.userId) || null;
+  }
+
+  function getRoleConfig(role) {
+    return ROLE_DEFAULTS[role] || ROLE_DEFAULTS.INVITADO;
+  }
+
+  function getUserTabConfig(user) {
+    if (!user) return ROLE_DEFAULTS.INVITADO.tabs;
+    const roleTabs = getRoleConfig(user.rol)?.tabs || {};
+    const overrides = user.permisos?.tabs || {};
+    return { ...roleTabs, ...overrides };
+  }
+
+  function canViewTab(tab) {
+    const user = getCurrentUser();
+    return Boolean(getUserTabConfig(user)?.[tab]);
+  }
+
+  function updateNavigation() {
+    if (!getCurrentUser()) return;
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const tab = item.dataset.tab;
+      const allowed = canViewTab(tab);
+      item.style.display = allowed ? 'flex' : 'none';
+    });
+    document.querySelectorAll('.panel').forEach(panel => {
+      const tab = panel.id.replace('tab-', '');
+      panel.style.display = canViewTab(tab) ? '' : 'none';
+    });
+
+    const activePanel = document.querySelector('.panel.active');
+    if (activePanel) {
+      const tab = activePanel.id.replace('tab-', '');
+      if (!canViewTab(tab)) {
+        const fallback = document.querySelector('.nav-item[data-tab="dashboard"]');
+        fallback?.click();
+      }
+    }
+  }
+
+  function updateEditMode() {
+    if (!getCurrentUser()) return;
+    const editable = window.canEdit();
+    document.querySelectorAll('.edit-only').forEach(el => {
+      el.style.display = editable ? '' : 'none';
+    });
+    ["formCliente", "formAgenda", "formFactura", "formPago"].forEach(id => {
+      const form = $(id);
+      if (!form) return;
+      form.querySelectorAll('input, select, textarea, button').forEach(field => {
+        if (field.classList.contains('edit-only')) return;
+        field.disabled = !editable;
+      });
+      form.classList.toggle('edit-disabled', !editable);
+    });
+    const userForm = $("formUsuario");
+    if (userForm) {
+      const canManage = window.canManageUsers();
+      userForm.querySelectorAll('input, select, textarea, button').forEach(field => {
+        if (field.classList.contains('edit-only')) return;
+        field.disabled = !canManage;
+      });
+      userForm.classList.toggle('edit-disabled', !canManage);
+    }
+  }
+
+  function applyAuthUI() {
+    const loggedIn = Boolean(getCurrentUser());
+    const loginScreen = $("loginScreen");
+    const appLayout = $("appLayout");
+    if (loginScreen) loginScreen.style.display = loggedIn ? "none" : "flex";
+    if (appLayout) appLayout.style.display = loggedIn ? "flex" : "none";
+  }
   
   function initFechaRegistro() {
     const el = $("facFechaRegistro");
     if(el && !el.value) el.value = toDatetimeLocalValue();
   }
 
-  function localISODate(d = new Date()) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  }
-
-  // ===== VALIDACION: AÑO (AAAA) SOLO 4 DIGITOS EN FECHAS =====
-  function enforceYear4Digits(el) {
-    const v = String(el.value || "");
-
-    // date: YYYY-MM-DD
-    if (el.type === "date") {
-      const m = v.match(/^(\d{1,})(-\d{0,2}-\d{0,2})?$/);
-      if (!m) return;
-      const year = m[1].slice(0, 4);
-      const rest = m[2] || "";
-      const fixed = year + rest;
-      if (fixed !== v) el.value = fixed;
-    }
-
-    // datetime-local: YYYY-MM-DDTHH:MM
-    if (el.type === "datetime-local") {
-      const m = v.match(/^(\d{1,})(-\d{0,2}-\d{0,2}T.*)$/);
-      if (!m) return;
-      const year = m[1].slice(0, 4);
-      const rest = m[2] || "";
-      const fixed = year + rest;
-      if (fixed !== v) el.value = fixed;
-    }
-  }
-
-  // Listener global (cubre todos tus inputs date/datetime-local)
-  document.addEventListener("input", (e) => {
-    const t = e.target;
-    if (t && (t.type === "date" || t.type === "datetime-local")) {
-      enforceYear4Digits(t);
-    }
-  });
-
-  document.addEventListener("change", (e) => {
-    const t = e.target;
-    if (t && (t.type === "date" || t.type === "datetime-local")) {
-        enforceYear4Digits(t);
-    }
-  });
-  
   function setAllDefaultDates() {
-    const today = localISODate();
+    const today = new Date().toISOString().split('T')[0];
     ["agFecha","facEmision","pagFecha","cliFechaIngreso","cliFechaRegistro"].forEach(id => {
       const el = $(id);
-      if (el && !el.value) el.value = today;
+      if(el && !el.value) el.value = today;
     });
     initFechaRegistro();
   }
-  
+
   // Toggle sidebar mobile
-  window.toggleSidebar = () => {
-    $("sidebar").classList.toggle("open");
+  window.toggleSidebar = (force) => {
+    const sb = $("sidebar");
+    const ov = $("sidebarOverlay");
+    const willOpen = (typeof force === "boolean") ? force : !sb.classList.contains("open");
+
+    sb.classList.toggle("open", willOpen);
+    if (ov) ov.style.display = willOpen ? "block" : "none";
   };
 
   window.switchTab = (tabName) => { 
+    if (!canViewTab(tabName)) {
+      alert("No tienes permisos para ver esta sección.");
+      return;
+    }
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelector(`.nav-item[onclick="switchTab('${tabName}')"]`)?.classList.add('active');
+    document.querySelector(`.nav-item[data-tab="${tabName}"]`)?.classList.add('active');
     $(`tab-${tabName}`)?.classList.add('active');
     setAllDefaultDates();
     
     // Close mobile sidebar
-    $("sidebar").classList.remove("open");
+    toggleSidebar(false);
   };
   
-  window.canEdit = () => { const u = window.db.usuarios.find(u => u.id === window.db.session.userId); return u && (u.rol === "ADMIN" || u.rol === "EDITOR"); };
+  window.canEdit = () => { const u = getCurrentUser(); return u && (u.rol === "ADMIN" || u.rol === "EDITOR"); };
+  window.canManageUsers = () => { const u = getCurrentUser(); return u && u.rol === "ADMIN"; };
   
   async function guardar(col, data) { if(!window.canEdit()) { alert("Sin permisos de edición."); return null; } try { data.createdAt = serverTimestamp(); return await addDoc(collection(db_cloud, col), data); } catch(e) { console.error(e); alert("Error al guardar"); return null; } }
+
+  window.loginWithEmailPass = async () => {
+    const emailInput = $("loginEmailInput");
+    const passInput = $("loginPassInput");
+    const email = emailInput?.value?.trim();
+    const password = passInput?.value || "";
+    if (!email || !password) return alert("Ingresa correo y contraseña.");
+    try {
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+      await signInWithEmailAndPassword(auth, email, password);
+      emailInput.value = "";
+      passInput.value = "";
+    } catch (error) {
+      console.error(error);
+      alert("Credenciales inválidas.");
+    }
+  };
+
+  window.logoutUser = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   window.setTipoComprobante = (tipo) => {
     $("facTipoRegistro").value = tipo;
@@ -1843,8 +2079,8 @@
     const selProv = $("facProveedor");
 
     if (tipo === "ingreso") {
-      $("btnTipoIngreso").className = "type-toggle-btn active-ingreso";
-      $("btnTipoGasto").className = "type-toggle-btn";
+      $("btnTipoIngreso").className = "type-toggle-btn active-ingreso edit-only";
+      $("btnTipoGasto").className = "type-toggle-btn edit-only";
 
       $("divFacCliente").style.display = "block";
       $("divFacProveedor").style.display = "none";
@@ -1859,13 +2095,13 @@
       selProv.disabled = true;
       selProv.value = ""; // limpia selección
 
-      $("lblTipoCobro").textContent = "Tipo de Cobro";
+      $("lblTipoCobro").textContent = "Forma de Pago";
       btnEmitir.textContent = "Emitir Ingreso";
-      btnEmitir.className = "btn btn-success";
+      btnEmitir.className = "btn btn-success edit-only";
 
     } else {
-      $("btnTipoIngreso").className = "type-toggle-btn";
-      $("btnTipoGasto").className = "type-toggle-btn active-gasto";
+      $("btnTipoIngreso").className = "type-toggle-btn edit-only";
+      $("btnTipoGasto").className = "type-toggle-btn active-gasto edit-only";
 
       $("divFacCliente").style.display = "none";
       $("divFacProveedor").style.display = "block";
@@ -1880,9 +2116,9 @@
       selProv.disabled = false;
       selProv.required = true;
 
-      $("lblTipoCobro").textContent = "Tipo de Pago";
+      $("lblTipoCobro").textContent = "Forma de Pago";
       btnEmitir.textContent = "Registrar Gasto";
-      btnEmitir.className = "btn btn-danger";
+      btnEmitir.className = "btn btn-danger edit-only";
     }
   };
 
@@ -1894,14 +2130,14 @@
       const fac = window.db.facturas.find(f => f.id === facId);
       if(fac && fac.tipoRegistro === 'gasto') {
         btn.textContent = "Registrar Egreso";
-        btn.className = "btn btn-danger";
+        btn.className = "btn btn-danger edit-only";
       } else {
         btn.textContent = "Registrar Ingreso";
-        btn.className = "btn btn-success";
+        btn.className = "btn btn-success edit-only";
       }
     } else {
       btn.textContent = "Registrar Ingreso";
-      btn.className = "btn btn-success";
+      btn.className = "btn btn-success edit-only";
     }
   };
 
@@ -1910,13 +2146,31 @@
   
   window.viewCliente = (id) => {
     const c = window.db.clientes.find(x => x.id === id); if(!c) return;
-    const link = safeUrl(c.link_drive);
-    const driveLink = link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">Abrir Carpeta</a>` : "—";
+    const driveLink = c.link_drive ? `<a href="${escapeHtml(c.link_drive)}" target="_blank">Abrir Carpeta</a>` : "—";
     $("modalTitle").innerText = "Detalle de Cliente";
     $("modalContent").innerHTML = `
       <div class="detail-section"><h3>Información General</h3><div class="detail-row"><div class="detail-label">Nombre:</div><div class="detail-value"><strong>${escapeHtml(c.nombre)}</strong></div></div><div class="detail-row"><div class="detail-label">Drive ID:</div><div class="detail-value">${escapeHtml(c.drive)}</div></div><div class="detail-row"><div class="detail-label">Link Drive:</div><div class="detail-value">${driveLink}</div></div><div class="detail-row"><div class="detail-label">Estado:</div><div class="detail-value"><span class="tag ${c.estado==='Inactivo'?'tag-muted':'tag-success'}">${c.estado||"Activo"}</span></div></div></div>
-      <div class="detail-section"><h3>Contacto</h3><div class="detail-row"><div class="detail-label">Persona:</div><div class="detail-value">${escapeHtml(c.contacto)}</div></div><div class="detail-row"><div class="detail-label">Cargo:</div><div class="detail-value">${escapeHtml(c.cargo)}</div></div><div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${escapeHtml(c.email)}</div></div><div class="detail-row"><div class="detail-label">Celular:</div><div class="detail-value">${escapeHtml(c.celular)}</div></div></div>
+      <div class="detail-section"><h3>Contacto</h3><div class="detail-row"><div class="detail-label">Persona:</div><div class="detail-value">${escapeHtml(c.contacto)}</div></div><div class="detail-row"><div class="detail-label">Cargo:</div><div class="detail-value">${escapeHtml(c.cargo)}</div></div><div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${escapeHtml(c.email)}</div></div><div class="detail-row"><div class="detail-label">Celular:</div><div class="detail-value">${escapeHtml(c.celular)}</div></div><div class="detail-row"><div class="detail-label">Dirección:</div><div class="detail-value">${escapeHtml(c.direccion)}</div></div><div class="detail-row"><div class="detail-label">Ciudad:</div><div class="detail-value">${escapeHtml(c.ciudad)}</div></div></div>
       <div class="detail-section"><h3>Información Legal</h3><div class="detail-row"><div class="detail-label">Expediente:</div><div class="detail-value">${escapeHtml(c.expediente)}</div></div><div class="detail-row"><div class="detail-label">Carta Poder:</div><div class="detail-value">${escapeHtml(c.carta_poder)}</div></div><div class="detail-row"><div class="detail-label">Canal:</div><div class="detail-value">${escapeHtml(c.canal)}</div></div><div class="detail-row"><div class="detail-label">Motivo:</div><div class="detail-value"><span class="tag tag-primary">${escapeHtml(c.motivo)}</span></div></div></div>
+      <div class="detail-section"><h3>Detalle y Notas</h3><div class="detail-row"><div class="detail-label">Detalle:</div><div class="detail-value">${escapeHtml(c.detalle || "—")}</div></div><div class="detail-row"><div class="detail-label">Notas:</div><div class="detail-value">${escapeHtml(c.notas || "—")}</div></div></div>
+    `;
+    $("modalGenericOverlay").classList.add("show"); $("modalGenericBox").style.display = "block";
+  };
+
+  window.viewPago = (id) => {
+    const p = window.db.pagos.find(x => x.id === id); if(!p) return;
+    const fac = window.db.facturas.find(f => f.id === p.facturaId);
+    const cliente = window.db.clientes.find(c => c.id === p.clienteId);
+    $("modalTitle").innerText = "Detalle de Pago";
+    $("modalContent").innerHTML = `
+      <div class="detail-section"><h3>Información</h3>
+        <div class="detail-row"><div class="detail-label">Cliente:</div><div class="detail-value"><strong>${escapeHtml(cliente?.nombre || "—")}</strong></div></div>
+        <div class="detail-row"><div class="detail-label">Factura:</div><div class="detail-value">${escapeHtml(fac?.numero || "Anticipo")}</div></div>
+        <div class="detail-row"><div class="detail-label">Fecha:</div><div class="detail-value">${p.fecha}</div></div>
+        <div class="detail-row"><div class="detail-label">Monto:</div><div class="detail-value"><strong>${money(p.monto)}</strong></div></div>
+        <div class="detail-row"><div class="detail-label">Método:</div><div class="detail-value">${escapeHtml(p.metodo || "—")}</div></div>
+      </div>
+      <div class="detail-section"><h3>Referencia / Nota</h3><p>${escapeHtml(p.referencia || "—")}</p></div>
     `;
     $("modalGenericOverlay").classList.add("show"); $("modalGenericBox").style.display = "block";
   };
@@ -1951,13 +2205,50 @@
     const lHtml = (f.lineas||[]).map(l=>`<tr><td>${escapeHtml(l.desc)}</td><td class="text-center">${l.qty}</td><td class="text-right">${money(l.pu)}</td><td class="text-center">${l.tipoCobro||""}</td><td class="text-right">${money(l.total)}</td></tr>`).join("");
     const pHtml = p.length ? p.map(pp=>`<tr><td>${pp.fecha}</td><td class="text-right">${money(pp.monto)}</td><td>${pp.metodo}</td><td style="font-size:11px;">${escapeHtml(pp.referencia||"")}</td></tr>`).join("") : '<tr><td colspan="4" class="text-center" style="color:var(--text-muted);">Sin pagos</td></tr>';
     
+    const fallbackTotales = (f.lineas || []).reduce((acc, line) => {
+      acc.opGravadas += Number(line.valorVenta || 0);
+      acc.descuentos += Number(line.descuento || 0);
+      return acc;
+    }, { opGravadas: 0, descuentos: 0 });
+    const totals = f.totales || {
+      opGravadas: fallbackTotales.opGravadas,
+      opInafectas: 0,
+      opExoneradas: 0,
+      opExportacion: 0,
+      opGratuitas: 0,
+      descuentos: fallbackTotales.descuentos,
+      subTotal: fallbackTotales.opGravadas - fallbackTotales.descuentos,
+      icbper: 0,
+      isc: 0,
+      igv: fallbackTotales.opGravadas * 0.18,
+      otrosCargos: 0,
+      total: totF
+    };
+
     $("modalFacturaContent").innerHTML = `
       <div class="detail-section"><h3>Información</h3>
         <div class="detail-row"><div class="detail-label">Tipo:</div><div class="detail-value"><span class="tag ${isGasto?'tag-danger':'tag-success'}">${isGasto?'Gasto':'Ingreso'}</span></div></div>
         <div class="detail-row"><div class="detail-label">${isGasto?'Proveedor':'Cliente'}:</div><div class="detail-value"><strong>${escapeHtml(entidad)}</strong></div></div>
-        <div class="detail-row"><div class="detail-label">Comprobante:</div><div class="detail-value">${escapeHtml(f.tipo)} <strong>${escapeHtml(f.numero)}</strong></div></div>
-        <div class="detail-row"><div class="detail-label">Fecha:</div><div class="detail-value">${f.emision}</div></div>
-        ${isGasto && f.categoriaGasto ? `<div class="detail-row"><div class="detail-label">Categoría:</div><div class="detail-value">${f.categoriaGasto}</div></div>` : ''}
+      <div class="detail-row"><div class="detail-label">Comprobante:</div><div class="detail-value">${escapeHtml(f.tipo)} <strong>${escapeHtml(f.numero)}</strong></div></div>
+      <div class="detail-row"><div class="detail-label">Fecha:</div><div class="detail-value">${f.emision}</div></div>
+      ${f.ordenCompra ? `<div class="detail-row"><div class="detail-label">Orden Compra:</div><div class="detail-value">${escapeHtml(f.ordenCompra)}</div></div>` : ''}
+      ${f.guiaRemision ? `<div class="detail-row"><div class="detail-label">Guía Remisión:</div><div class="detail-value">${escapeHtml(f.guiaRemision)}</div></div>` : ''}
+      ${isGasto && f.categoriaGasto ? `<div class="detail-row"><div class="detail-label">Categoría:</div><div class="detail-value">${f.categoriaGasto}</div></div>` : ''}
+      </div>
+      ${f.observaciones ? `<div class="detail-section"><h3>Observaciones</h3><p>${escapeHtml(f.observaciones)}</p></div>` : ''}
+      <div class="detail-section"><h3>Detalle de Totales</h3>
+        <div class="detail-row"><div class="detail-label">OP. Gravadas:</div><div class="detail-value">${money(totals.opGravadas)}</div></div>
+        <div class="detail-row"><div class="detail-label">OP. Inafectas:</div><div class="detail-value">${money(totals.opInafectas)}</div></div>
+        <div class="detail-row"><div class="detail-label">OP. Exoneradas:</div><div class="detail-value">${money(totals.opExoneradas)}</div></div>
+        <div class="detail-row"><div class="detail-label">OP. Exportación:</div><div class="detail-value">${money(totals.opExportacion)}</div></div>
+        <div class="detail-row"><div class="detail-label">Total OP. Gratuitas:</div><div class="detail-value">${money(totals.opGratuitas)}</div></div>
+        <div class="detail-row"><div class="detail-label">Dsctos. Totales:</div><div class="detail-value">${money(totals.descuentos)}</div></div>
+        <div class="detail-row"><div class="detail-label">Sub Total:</div><div class="detail-value">${money(totals.subTotal)}</div></div>
+        <div class="detail-row"><div class="detail-label">ICBPER:</div><div class="detail-value">${money(totals.icbper)}</div></div>
+        <div class="detail-row"><div class="detail-label">ISC:</div><div class="detail-value">${money(totals.isc)}</div></div>
+        <div class="detail-row"><div class="detail-label">IGV:</div><div class="detail-value">${money(totals.igv)}</div></div>
+        <div class="detail-row"><div class="detail-label">Otros Cargos:</div><div class="detail-value">${money(totals.otrosCargos)}</div></div>
+        <div class="detail-row"><div class="detail-label">Total:</div><div class="detail-value"><strong>${money(totals.total || totF)}</strong></div></div>
       </div>
       <div class="detail-section"><h3>Totales</h3>
         <div class="detail-row"><div class="detail-label">Total:</div><div class="detail-value"><strong>${money(totF)}</strong></div></div>
@@ -1978,32 +2269,56 @@
   // Actions
   window.toggleClienteEstado = async (id, st) => { if(window.canEdit()) await updateDoc(doc(db_cloud,"clientes",id),{estado:st}); };
   window.deleteCliente = async (id) => { if(window.canEdit() && confirm("¿Eliminar este cliente?")) await deleteDoc(doc(db_cloud,"clientes",id)); };
-  window.startEditCliente = (id) => { const c=window.db.clientes.find(x=>x.id===id); if(!c)return; window.editClienteId=id; $("cliNombre").value=c.nombre; $("cliDrive").value=c.drive; $("cliContacto").value=c.contacto; $("cliCargo").value=c.cargo; $("cliEmail").value=c.email; $("cliCelular").value=c.celular; $("cliExpediente").value=c.expediente; $("cliCartaPoder").value=c.carta_poder; $("cliLinkDrive").value=c.link_drive||""; $("cliCanal").value = ["WhatsApp","Llamada","Correo","Presencial","Otro"].includes(c.canal)?c.canal:"Otro"; toggleOtro("cliCanal","cliCanalOtro"); if($("cliCanal").value=="Otro")$("cliCanalOtro").value=c.canal; $("cliMotivo").value = ["Sucesión","Contrato","Proceso Judicial","Trámite Administrativo","Procedimiento Administrativo","Notarial","Otro"].includes(c.motivo)?c.motivo:"Otro"; toggleOtro("cliMotivo","cliMotivoOtro"); if($("cliMotivo").value=="Otro")$("cliMotivoOtro").value=c.motivo; $("cliDetalle").value=c.detalle; $("cliNotas").value=c.notas; $("cliFechaIngreso").value=c.fecha_ingreso; $("cliFechaRegistro").value=c.fecha_registro; $("cliEstado").value=c.estado; $("brnCancelEdit").style.display="inline-block"; };
+  window.startEditCliente = (id) => { const c=window.db.clientes.find(x=>x.id===id); if(!c)return; window.editClienteId=id; $("cliNombre").value=c.nombre; $("cliDrive").value=c.drive; $("cliContacto").value=c.contacto; $("cliCargo").value=c.cargo; $("cliEmail").value=c.email; $("cliCelular").value=c.celular; $("cliDireccion").value=c.direccion; $("cliCiudad").value=c.ciudad; $("cliExpediente").value=c.expediente; $("cliCartaPoder").value=c.carta_poder; $("cliLinkDrive").value=c.link_drive||""; $("cliCanal").value = ["WhatsApp","Llamada","Correo","Presencial","Otro"].includes(c.canal)?c.canal:"Otro"; toggleOtro("cliCanal","cliCanalOtro"); if($("cliCanal").value=="Otro")$("cliCanalOtro").value=c.canal; $("cliMotivo").value = ["Sucesión","Contrato","Proceso Judicial","Trámite Administrativo","Procedimiento Administrativo","Notarial","Otro"].includes(c.motivo)?c.motivo:"Otro"; toggleOtro("cliMotivo","cliMotivoOtro"); if($("cliMotivo").value=="Otro")$("cliMotivoOtro").value=c.motivo; $("cliDetalle").value=c.detalle; $("cliNotas").value=c.notas; $("cliFechaIngreso").value=c.fecha_ingreso; $("cliFechaRegistro").value=c.fecha_registro; $("cliEstado").value=c.estado; $("brnCancelEdit").style.display="inline-block"; };
   window.cancelEditCliente = () => { window.editClienteId=null; $("formCliente").reset(); $("brnCancelEdit").style.display="none"; };
   window.deleteAgenda = async (id) => { if(window.canEdit() && confirm("¿Eliminar esta actividad?")) await deleteDoc(doc(db_cloud,"agenda",id)); };
   window.startEditAgenda = (id) => { const a=window.db.agenda.find(x=>x.id===id); if(!a)return; window.editAgendaId=id; $("agActividad").value=a.actividad; $("agLugar").value=a.lugar; $("agFecha").value=a.fecha; $("agHora").value=a.hora; $("agDesc").value=a.descripcion; $("btnCancelAgenda").style.display="inline-block"; };
   window.cancelEditAgenda = () => { window.editAgendaId=null; $("formAgenda").reset(); $("btnCancelAgenda").style.display="none"; };
   window.deleteFactura = async (id) => { if(!window.canEdit()||!confirm("¿Eliminar comprobante y pagos asociados?"))return; try{const q=query(collection(db_cloud,"pagos"),where("facturaId","==",id));const s=await getDocs(q);s.forEach(async d=>await deleteDoc(doc(db_cloud,"pagos",d.id)));await deleteDoc(doc(db_cloud,"facturas",id));}catch(e){console.error(e);} };
   window.deletePago = async (id) => { if(window.canEdit() && confirm("¿Eliminar este pago?")) await deleteDoc(doc(db_cloud,"pagos",id)); };
+  window.updateUserRole = async (id, role) => { if(!window.canManageUsers()) return; await updateDoc(doc(db_cloud,"usuarios",id), { rol: role }); };
+  window.updateUserPermission = async (id, tab, enabled) => {
+    if (!window.canManageUsers()) return;
+    const user = window.db.usuarios.find(u => u.id === id);
+    if (!user) return;
+    const roleTabs = getRoleConfig(user.rol)?.tabs || {};
+    const nextOverrides = { ...(user.permisos?.tabs || {}) };
+    nextOverrides[tab] = enabled;
+    if (nextOverrides[tab] === roleTabs[tab]) {
+      delete nextOverrides[tab];
+    }
+    await updateDoc(doc(db_cloud, "usuarios", id), { permisos: { tabs: nextOverrides } });
+  };
+  window.deleteUser = async (id) => { if(!window.canManageUsers()) return; if(confirm("¿Eliminar este usuario?")) await deleteDoc(doc(db_cloud,"usuarios",id)); };
 
   // Firebase listeners
-  function normalizeDocs(snap) {
-    // Convierte y ordena en JS (evita que Firestore falle si falta createdAt)
-    return snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .sort((a,b) => {
-        const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-        const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-        return tb - ta;
-      });
-  }
-
-  onSnapshot(collection(db_cloud, "clientes"), (s) => { window.db.clientes = normalizeDocs(s); refreshAll(); });
-  onSnapshot(collection(db_cloud, "agenda"),   (s) => { window.db.agenda   = normalizeDocs(s); refreshAll(); });
-  onSnapshot(collection(db_cloud, "facturas"), (s) => { window.db.facturas = normalizeDocs(s); refreshAll(); });
-  onSnapshot(collection(db_cloud, "pagos"),    (s) => { window.db.pagos    = normalizeDocs(s); refreshAll(); });
-
+  const qry = (col) => query(collection(db_cloud, col), orderBy("createdAt", "desc"));
+  onSnapshot(qry("clientes"), (s) => { window.db.clientes = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
+  onSnapshot(collection(db_cloud, "agenda"), (s) => { window.db.agenda = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
+  onSnapshot(collection(db_cloud, "facturas"), (s) => { window.db.facturas = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
+  onSnapshot(qry("pagos"), (s) => { window.db.pagos = s.docs.map(d=>({id:d.id,...d.data()})); refreshAll(); });
+  onSnapshot(collection(db_cloud, "usuarios"), (s) => {
+    window.db.usuarios = s.docs.map(d=>({id:d.id,...d.data()}));
+    if (window.db.session.userId && !window.db.usuarios.find(u => u.id === window.db.session.userId)) {
+      window.db.session.userId = null;
+    }
+    refreshAll();
+  });
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.db.session.userId = null;
+      refreshAll();
+      return;
+    }
+    const match = window.db.usuarios.find(u => u.uid === user.uid)
+      || window.db.usuarios.find(u => String(u.email || "").toLowerCase() === String(user.email || "").toLowerCase());
+    window.db.session.userId = match?.id || null;
+    refreshAll();
+  });
+  
   function refreshAll() { 
+    applyAuthUI();
+    if (!getCurrentUser()) return;
     renderSelects(); 
     renderCartera(); 
     renderAgenda(); 
@@ -2012,7 +2327,8 @@
     renderUsers(); 
     initFechaRegistro(); 
     renderDashboard();
-    paintIcons();
+    updateNavigation();
+    updateEditMode();
   }
 
   // =====================
@@ -2028,19 +2344,25 @@
       const f = window.db.facturas.find(x => x.id === p.facturaId);
       return !f || f.tipoRegistro !== 'gasto';
     }).reduce((s,p) => s + (Number(p.monto)||0), 0);
-    const saldoPendiente = ingresos.reduce((acc, f) => {
-      const pagado = window.db.pagos
-        .filter(p => p.facturaId === f.id)
-        .reduce((s,p) => s + (Number(p.monto)||0), 0);
-      const saldo = (Number(f.total)||0) - pagado;
-      return acc + (saldo > 0 ? saldo : 0);
-    }, 0);
+    const cobradoFacturas = window.db.pagos.filter(p => {
+      if (!p.facturaId) return false;
+      const f = window.db.facturas.find(x => x.id === p.facturaId);
+      return f && f.tipoRegistro !== 'gasto';
+    }).reduce((s,p) => s + (Number(p.monto)||0), 0);
+    const anticipos = window.db.pagos.filter(p => !p.facturaId).reduce((s,p) => s + (Number(p.monto)||0), 0);
+    const pagosGastos = window.db.pagos.filter(p => {
+      const f = window.db.facturas.find(x => x.id === p.facturaId);
+      return f && f.tipoRegistro === 'gasto';
+    }).reduce((s,p) => s + (Number(p.monto)||0), 0);
+    const ingresosConAnticipos = totalIngresos + anticipos;
+    const cuentasPorCobrar = totalIngresos - cobradoFacturas;
+    const cuentasPorPagar = totalGastos - pagosGastos;
 
     // KPIs
-    $("dashKpiVentas").textContent = money(totalIngresos);
-    $("dashKpiCobranza").textContent = money(totalCobrado);
-    $("dashKpiPendiente").textContent = money(saldoPendiente);
+    $("dashKpiVentas").textContent = money(ingresosConAnticipos);
     $("dashKpiGastos").textContent = money(totalGastos);
+    $("dashKpiPendiente").textContent = money(cuentasPorCobrar);
+    $("dashKpiCobranza").textContent = money(cuentasPorPagar);
 
     // Quick Stats
     const clientesActivos = window.db.clientes.filter(c => c.estado !== "Inactivo").length;
@@ -2354,19 +2676,9 @@
   // OTHER RENDERS
   // =====================
   window.renderSelects = function() {
-    const fill = (id, data, fnVal, fnTxt) => {
-      const el = $(id);
-      if(!el) return;
-      const curr = el.value;
-
-      el.innerHTML = '<option value="">— Seleccionar —</option>';
-      data.forEach(x => el.innerHTML += `<option value="${fnVal(x)}">${escapeHtml(fnTxt(x))}</option>`);
-
-      // Solo restaura si existe la opción
-      if ([...el.options].some(o => o.value === curr)) el.value = curr;
-    };
-    fill("facCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
-    fill("facProveedor", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
+    const fill = (id, data, fnVal, fnTxt) => { const el = $(id); if(!el) return; const curr = el.value; el.innerHTML = '<option value="">— Seleccionar —</option>'; data.forEach(x => el.innerHTML += `<option value="${fnVal(x)}">${fnTxt(x)}</option>`); el.value = curr; };
+    fill("facCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre); 
+    fill("facProveedor", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre); 
     fill("pagCliente", window.db.clientes.filter(c=>c.estado!=="Inactivo"), c=>c.id, c=>c.nombre);
     
     const cliDL = $("cliSearchList"); if (cliDL) { cliDL.innerHTML = ""; window.db.clientes.forEach(c => cliDL.innerHTML += `<option value="${escapeHtml(c.nombre)}">`); }
@@ -2378,7 +2690,7 @@
     const el = $("pagFactura");
     el.innerHTML = '<option value="">— Anticipo —</option>';
     if(cliId) {
-      const facs = window.db.facturas.filter(f =>  f.clienteId === cliId || f.proveedorId === cliId);
+      const facs = window.db.facturas.filter(f => f.clienteId === cliId);
       facs.forEach(f => {
         const pagos = window.db.pagos.filter(p => p.facturaId === f.id).reduce((s,p)=>s+Number(p.monto),0);
         const saldo = f.total - pagos;
@@ -2406,26 +2718,68 @@
   };
 
   window.addLinea = () => { 
-    const desc = $("lineDesc").value, qty = parseNum($("lineQty").value), pu = parseNum($("linePU").value), tipo = $("lineTipoCobro").value; 
+    if(!window.canEdit()) return;
+    const codigo = $("lineCodigo").value;
+    const desc = $("lineDesc").value;
+    const unidad = $("lineUnidad").value;
+    const qty = parseNum($("lineQty").value);
+    const pu = parseNum($("linePU").value);
+    const descuento = parseNum($("lineDescuento").value);
+    const tipo = $("lineTipoCobro").value; 
     if(!desc || qty<=0 || pu<0) return alert("Completa los datos de la línea"); 
-    window.facLineas.push({ desc, qty, pu, tipoCobro: tipo, total: qty*pu }); 
+    const valorVenta = (qty * pu) - descuento;
+    window.facLineas.push({ codigo, desc, unidad, qty, pu, descuento, valorVenta, tipoCobro: tipo, total: valorVenta }); 
     window.renderLineas(); 
-    $("lineDesc").value=""; $("lineQty").value="1"; $("linePU").value=""; $("lineDesc").focus(); 
+    $("lineCodigo").value=""; $("lineDesc").value=""; $("lineUnidad").value=""; $("lineQty").value="1"; $("linePU").value=""; $("lineDescuento").value=""; $("lineValorVenta").value=""; $("lineDesc").focus(); 
   };
   
-  window.removeLinea = (idx) => { window.facLineas.splice(idx, 1); window.renderLineas(); };
+  window.removeLinea = (idx) => { if(!window.canEdit()) return; window.facLineas.splice(idx, 1); window.renderLineas(); };
+
+  window.updateValorVenta = () => {
+    const qty = parseNum($("lineQty").value);
+    const pu = parseNum($("linePU").value);
+    const descuento = parseNum($("lineDescuento").value);
+    const valorVenta = (qty * pu) - descuento;
+    $("lineValorVenta").value = valorVenta ? valorVenta.toFixed(2) : "";
+    updateTotals();
+  };
   
   window.renderLineas = () => { 
     let html = "", t=0; 
+    let opGravadas = 0;
+    let descuentos = 0;
     window.facLineas.forEach((l, idx) => { 
       t+=l.total; 
-      html += `<tr><td>${escapeHtml(l.desc)}</td><td class="text-center">${l.qty}</td><td class="text-right">${money(l.pu)}</td><td class="text-center">${l.tipoCobro}</td><td class="text-right"><strong>${money(l.total)}</strong></td><td class="text-center"><button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="removeLinea(${idx})">×</button></td></tr>`; 
+      opGravadas += l.valorVenta || 0;
+      descuentos += l.descuento || 0;
+      html += `<tr><td>${escapeHtml(l.codigo || "")}</td><td>${escapeHtml(l.desc)}</td><td class="text-center">${l.qty}</td><td>${escapeHtml(l.unidad || "")}</td><td class="text-right">${money(l.pu)}</td><td class="text-right">${money(l.descuento)}</td><td class="text-right">${money(l.valorVenta)}</td><td class="text-center">${l.tipoCobro}</td><td class="text-right"><strong>${money(l.total)}</strong></td><td class="text-center">${window.canEdit()?`<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="removeLinea(${idx})">×</button>`:''}</td></tr>`; 
     }); 
     if(window.facLineas.length === 0) {
-      html = '<tr><td colspan="6" class="text-center" style="color:var(--text-muted); padding:24px;">Agrega líneas al comprobante</td></tr>';
+      html = '<tr><td colspan="10" class="text-center" style="color:var(--text-muted); padding:24px;">Agrega líneas al comprobante</td></tr>';
     }
     $("tblLineas").innerHTML = html; 
-    $("lblTotal").textContent = money(t); 
+    updateTotals(opGravadas, descuentos);
+  };
+
+  window.updateTotals = (opGravadas = null, descuentos = null) => {
+    const gravadas = opGravadas !== null ? opGravadas : window.facLineas.reduce((s,l)=>s+(l.valorVenta||0),0);
+    const totalDescuentos = descuentos !== null ? descuentos : window.facLineas.reduce((s,l)=>s+(l.descuento||0),0);
+    const opInafectas = parseNum($("totOpInafectas")?.value);
+    const opExoneradas = parseNum($("totOpExoneradas")?.value);
+    const opExportacion = parseNum($("totOpExportacion")?.value);
+    const opGratuitas = parseNum($("totOpGratuitas")?.value);
+    const subTotal = (gravadas + opInafectas + opExoneradas + opExportacion) - totalDescuentos;
+    const igv = gravadas * 0.18;
+    const icbper = parseNum($("totIcbper")?.value);
+    const isc = parseNum($("totIsc")?.value);
+    const otrosCargos = parseNum($("totOtrosCargos")?.value);
+    const total = subTotal + icbper + isc + igv + otrosCargos;
+
+    if ($("totOpGravadas")) $("totOpGravadas").value = gravadas.toFixed(2);
+    if ($("totDescuentos")) $("totDescuentos").value = totalDescuentos.toFixed(2);
+    if ($("totSubTotal")) $("totSubTotal").value = subTotal.toFixed(2);
+    if ($("totIgv")) $("totIgv").value = igv.toFixed(2);
+    if ($("lblTotal")) $("lblTotal").textContent = money(total);
   };
 
   window.renderCartera = () => {
@@ -2559,27 +2913,55 @@
           <td class="text-center"><span class="tag ${isGasto?'tag-danger':'tag-success'}">${tipoLabel}</span></td>
           <td class="text-right ${amountClass}">${money(p.monto)}</td>
           <td>${p.metodo}</td>
-          <td class="text-center">${window.canEdit()?`<button class="btn btn-secondary btn-icon btn-sm" onclick="window.deletePago('${p.id}')">×</button>`:''}</td>
+          <td class="text-center"><div class="actions-cell">
+            <button class="btn btn-secondary btn-icon btn-sm" onclick="window.viewPago('${p.id}')">◉</button>
+            ${window.canEdit()?`<button class="btn btn-secondary btn-icon btn-sm" onclick="window.deletePago('${p.id}')">×</button>`:''}
+          </div></td>
         </tr>`}).join(""); 
     }
   };
   
   window.renderUsers = () => { 
+    const rolePerms = {
+      ADMIN: 'Acceso total',
+      EDITOR: 'Lectura y escritura según permisos',
+      INVITADO: 'Solo lectura'
+    };
+    const tabs = [
+      { id: 'dashboard', label: 'Dashboard' },
+      { id: 'facturas', label: 'Facturación' },
+      { id: 'pagos', label: 'Pagos' },
+      { id: 'clientes', label: 'Clientes' },
+      { id: 'agenda', label: 'Agenda' },
+      { id: 'usuarios', label: 'Usuarios' }
+    ];
     $("tblUsuarios").innerHTML = window.db.usuarios.map(u=>{
-      const permisos = u.rol === 'ADMIN' ? 'Acceso total' : (u.rol === 'EDITOR' ? 'Lectura y escritura' : 'Solo lectura');
-      return `<tr><td><strong>${u.nombre}</strong></td><td><span class="tag tag-primary">${u.rol}</span></td><td style="color:var(--text-muted);">${permisos}</td></tr>`;
+      const permisos = rolePerms[u.rol] || 'Solo lectura';
+      const userTabs = getUserTabConfig(u);
+      const permissionMarkup = window.canManageUsers()
+        ? `<div class="user-permissions">
+            ${tabs.map(tab => `
+              <label>
+                <input type="checkbox" ${userTabs?.[tab.id] ? 'checked' : ''} onchange="updateUserPermission('${u.id}','${tab.id}', this.checked)">
+                ${tab.label}
+              </label>
+            `).join('')}
+          </div>`
+        : `<span style="color:var(--text-muted);">${permisos}</span>`;
+      return `<tr>
+        <td><strong>${u.nombre || '—'}</strong><br><span style="font-size:11px; color:var(--text-muted);">${u.email || 'Sin correo'}</span></td>
+        <td>${window.canManageUsers()?`<select onchange="updateUserRole('${u.id}', this.value)"><option value="ADMIN" ${u.rol==='ADMIN'?'selected':''}>ADMIN</option><option value="EDITOR" ${u.rol==='EDITOR'?'selected':''}>EDITOR</option><option value="INVITADO" ${u.rol==='INVITADO'?'selected':''}>INVITADO</option></select>`:`<span class="tag tag-primary">${u.rol}</span>`}</td>
+        <td>${permissionMarkup}</td>
+        <td class="text-center">${window.canManageUsers()?`<button class="btn btn-secondary btn-icon btn-sm" onclick="deleteUser('${u.id}')">×</button>`:'—'}</td>
+      </tr>`;
     }).join(""); 
-    const s=$("sessionUser"); 
-    if(s.options.length===0) window.db.usuarios.forEach(u=>s.innerHTML+=`<option value="${u.id}">${u.nombre}</option>`); 
-    const currentUser = window.db.usuarios.find(u => u.id === window.db.session.userId);
+    const currentUser = getCurrentUser();
     if(currentUser) {
-      $("userNameSidebar").textContent = currentUser.nombre;
+      $("userNameSidebar").textContent = currentUser.nombre || 'Usuario';
       $("userRoleSidebar").textContent = currentUser.rol;
-      $("userAvatarSidebar").textContent = currentUser.nombre.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      $("userAvatarSidebar").textContent = (currentUser.nombre || 'U').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
     }
   };
-  
-  $("sessionUser").onchange = (e) => { window.db.session.userId=e.target.value; renderUsers(); refreshAll(); };
 
   // Form Submits
   $("formFactura").onsubmit = async (e) => {
@@ -2592,23 +2974,37 @@
     const proveedorSelect = $("facProveedor");
     const proveedorNombre = proveedorSelect?.selectedOptions?.[0]?.textContent?.trim() || "";
     
-    const d = {
-        tipoRegistro,
-        clienteId: tipoRegistro === 'ingreso' ? $("facCliente").value : null,
-        proveedorId: tipoRegistro === 'gasto' ? $("facProveedor").value : null,
-        proveedor: tipoRegistro === 'gasto' ? (proveedorNombre || "") : "",
-        categoriaGasto: tipoRegistro === 'gasto' ? $("facCategoriaGasto").value : null,
-
-        proyectoId: $("facProyecto").value,
-        tipo: $("facTipoComp").value,
-        numero: $("facNumero").value,
-        uuid: $("facUUID").value,
-        moneda: $("facMoneda").value,
-        emision: $("facEmision").value,
-        vencimiento: $("facVenc").value,
-        fecha_registro: $("facFechaRegistro").value,
-        total: t,
-        lineas: window.facLineas
+    const d = { 
+      tipoRegistro,
+      clienteId: tipoRegistro === 'ingreso' ? $("facCliente").value : $("facProveedor").value,
+      proveedor: tipoRegistro === 'gasto' ? proveedorNombre : null,
+      categoriaGasto: tipoRegistro === 'gasto' ? $("facCategoriaGasto").value : null,
+      proyectoId: $("facProyecto").value, 
+      tipo: $("facTipoComp").value, 
+      numero: $("facNumero").value, 
+      guiaRemision: $("facGuiaRemision").value, 
+      ordenCompra: $("facOrdenCompra").value,
+      moneda: $("facMoneda").value, 
+      emision: $("facEmision").value, 
+      vencimiento: $("facVenc").value, 
+      fecha_registro: $("facFechaRegistro").value, 
+      observaciones: $("facObservaciones").value,
+      totales: {
+        opGravadas: parseNum($("totOpGravadas")?.value),
+        opInafectas: parseNum($("totOpInafectas")?.value),
+        opExoneradas: parseNum($("totOpExoneradas")?.value),
+        opExportacion: parseNum($("totOpExportacion")?.value),
+        opGratuitas: parseNum($("totOpGratuitas")?.value),
+        descuentos: parseNum($("totDescuentos")?.value),
+        subTotal: parseNum($("totSubTotal")?.value),
+        icbper: parseNum($("totIcbper")?.value),
+        isc: parseNum($("totIsc")?.value),
+        igv: parseNum($("totIgv")?.value),
+        otrosCargos: parseNum($("totOtrosCargos")?.value),
+        total: parseNum(String($("lblTotal")?.textContent || "").replace(/[^\d.-]/g, ""))
+      },
+      total: t, 
+      lineas: window.facLineas 
     };
     
     const ref = await guardar("facturas", d);
@@ -2629,7 +3025,7 @@
     e.preventDefault();
     let c=$("cliCanal").value=="Otro"?$("cliCanalOtro").value:$("cliCanal").value;
     let m=$("cliMotivo").value=="Otro"?$("cliMotivoOtro").value:$("cliMotivo").value; 
-    const pl={nombre:$("cliNombre").value, drive:$("cliDrive").value, fecha_ingreso:$("cliFechaIngreso").value, fecha_registro:$("cliFechaRegistro").value, contacto:$("cliContacto").value, cargo:$("cliCargo").value, email:$("cliEmail").value, celular:$("cliCelular").value, expediente:$("cliExpediente").value, carta_poder:$("cliCartaPoder").value, canal:c, motivo:m, detalle:$("cliDetalle").value, notas:$("cliNotas").value, link_drive:$("cliLinkDrive").value, estado:$("cliEstado").value}; 
+    const pl={nombre:$("cliNombre").value, drive:$("cliDrive").value, fecha_ingreso:$("cliFechaIngreso").value, fecha_registro:$("cliFechaRegistro").value, contacto:$("cliContacto").value, cargo:$("cliCargo").value, email:$("cliEmail").value, celular:$("cliCelular").value, direccion:$("cliDireccion").value, ciudad:$("cliCiudad").value, expediente:$("cliExpediente").value, carta_poder:$("cliCartaPoder").value, canal:c, motivo:m, detalle:$("cliDetalle").value, notas:$("cliNotas").value, link_drive:$("cliLinkDrive").value, estado:$("cliEstado").value}; 
     if(window.editClienteId){ 
       if(window.canEdit()){ await updateDoc(doc(db_cloud,"clientes",window.editClienteId),pl); alert("Cliente actualizado"); window.cancelEditCliente(); } 
     } else {
@@ -2659,6 +3055,28 @@
     }
     const ref = await guardar("pagos",{clienteId:$("pagCliente").value, facturaId:fid||null, lineaIdx:lidx!==""?parseInt(lidx):null, fecha:$("pagFecha").value, monto:m, metodo:$("pagMetodo").value, referencia:$("pagReferencia").value});
     if(ref) { alert("Pago registrado"); e.target.reset(); setAllDefaultDates(); updatePagoButton(); }
+  };
+
+  $("formUsuario").onsubmit = async (e) => {
+    e.preventDefault();
+    if (!window.canManageUsers()) return alert("Solo administradores pueden crear usuarios.");
+    const email = $("usrEmail").value;
+    const password = $("usrContrasena").value;
+    try {
+      const cred = await createUserWithEmailAndPassword(adminAuth, email, password);
+      await signOut(adminAuth);
+      const payload = {
+        nombre: $("usrNombre").value,
+        rol: $("usrRol").value,
+        email,
+        uid: cred.user.uid
+      };
+      const ref = await guardar("usuarios", payload);
+      if(ref) { alert("Usuario creado"); e.target.reset(); }
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo crear el usuario.");
+    }
   };
 
   window.toggleOtro=(s,i)=>{ $(i).style.display=$(s).value==="Otro"?"block":"none"; };
